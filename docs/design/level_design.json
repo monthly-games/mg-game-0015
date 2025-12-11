@@ -1,0 +1,107 @@
+{
+  "version": "0.1.0",
+  "chapters": [
+    {
+      "chapter_id": 1,
+      "name": "폐허에서 시작",
+      "story": "전쟁으로 황폐화된 왕국, 당신은 마지막 왕족으로서 재건을 시작한다",
+      "unlock_buildings": ["farm", "house", "lumber_mill"],
+      "unlock_area": "central_village",
+      "goals": {
+        "build_farms": 3,
+        "build_houses": 5,
+        "population": 10,
+        "gold_accumulated": 10000
+      },
+      "rewards": {
+        "gold": 5000,
+        "gems": 50
+      }
+    },
+    {
+      "chapter_id": 2,
+      "name": "마을의 확장",
+      "story": "주민들이 모여들기 시작한다. 더 많은 자원과 건물이 필요하다",
+      "unlock_buildings": ["quarry", "workshop", "market"],
+      "unlock_area": "west_district",
+      "goals": {
+        "build_quarries": 2,
+        "build_workshops": 2,
+        "population": 50,
+        "total_building_level": 100
+      },
+      "rewards": {
+        "gold": 10000,
+        "gems": 100,
+        "wood": 1000,
+        "stone": 500
+      }
+    },
+    {
+      "chapter_id": 3,
+      "name": "문화의 부흥",
+      "story": "왕국에 문화가 돌아온다. 도서관과 극장이 필요하다",
+      "unlock_buildings": ["library", "theater", "mansion"],
+      "unlock_area": "cultural_district",
+      "goals": {
+        "build_library": 1,
+        "build_theater": 1,
+        "population": 100,
+        "happiness": 80
+      },
+      "rewards": {
+        "gold": 20000,
+        "gems": 200,
+        "special_citizen": "scholar"
+      }
+    },
+    {
+      "chapter_id": 4,
+      "name": "방어의 시작",
+      "story": "외부의 위협이 감지된다. 방어 시설을 건설해야 한다",
+      "unlock_buildings": ["barracks", "wall", "watchtower"],
+      "unlock_area": "military_zone",
+      "goals": {
+        "build_barracks": 2,
+        "build_walls": 10,
+        "army_power": 1000
+      },
+      "rewards": {
+        "gold": 50000,
+        "gems": 300,
+        "special_citizen": "knight_captain"
+      }
+    },
+    {
+      "chapter_id": 5,
+      "name": "왕국의 영광",
+      "story": "드디어 성을 재건할 시간이다. 왕국이 옛 영광을 되찾는다",
+      "unlock_buildings": ["castle", "grand_market", "royal_garden"],
+      "unlock_area": "royal_quarter",
+      "goals": {
+        "build_castle": 1,
+        "upgrade_castle": 5,
+        "population": 500,
+        "total_production_per_hour": 50000
+      },
+      "rewards": {
+        "gold": 100000,
+        "gems": 1000,
+        "title": "kingdom_restorer",
+        "special_skin": "royal_theme"
+      }
+    }
+  ],
+  "difficulty_scaling": {
+    "building_cost_per_chapter": 1.5,
+    "production_requirement_per_chapter": 2.0,
+    "population_requirement_per_chapter": 1.8
+  },
+  "idle_mechanics": {
+    "offline_time_cap_hours": 12,
+    "production_rate_while_offline": 1.0,
+    "boost_available": true,
+    "boost_multiplier": 2.0,
+    "boost_duration_hours": 1
+  }
+}

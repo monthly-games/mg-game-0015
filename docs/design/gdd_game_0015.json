@@ -1,0 +1,98 @@
+{
+  "meta": {
+    "game_id": "game_0015",
+    "code_name": "MG-0015",
+    "title_kr": "왕국 재건 프로젝트",
+    "title_en": "Kingdom Rebuild Project",
+    "version": "0.1.0",
+    "last_updated": "2025-07-01"
+  },
+  "overview": {
+    "genre_tags": ["idle", "city_building", "story"],
+    "target_audience": {
+      "age": "20-45",
+      "region": ["KR", "SEA", "Global"],
+      "play_style": "relaxed_casual"
+    },
+    "core_loop": "건물을 건설하고 방치 수익으로 왕국을 확장하며 스토리를 진행한다",
+    "unique_selling_point": "스토리 기반의 점진적 왕국 재건 경험",
+    "year2_role": "장기 운영 가능한 방치형 타이틀 후보"
+  },
+  "gameplay": {
+    "core_mechanics": [
+      {
+        "name": "건물 건설",
+        "description": "다양한 건물을 건설하여 왕국 기능 확장"
+      },
+      {
+        "name": "방치 수익",
+        "description": "오프라인 동안 자동으로 자원 생산"
+      },
+      {
+        "name": "스토리 진행",
+        "description": "챕터별 스토리를 통해 왕국의 과거와 미래 발견"
+      },
+      {
+        "name": "주민 관리",
+        "description": "주민을 배치하여 건물 효율 증가"
+      }
+    ],
+    "progression": {
+      "type": "chapter_unlock",
+      "description": "스토리 챕터를 해금하며 새로운 지역과 건물 획득"
+    },
+    "session_length": "5-10분"
+  },
+  "economy": {
+    "currencies": [
+      {
+        "name": "골드",
+        "type": "soft",
+        "sources": ["방치 수익", "건물 생산", "퀘스트 완료"],
+        "sinks": ["건물 건설", "건물 업그레이드", "주민 고용"]
+      },
+      {
+        "name": "보석",
+        "type": "hard",
+        "sources": ["인앱 구매", "챕터 완료", "업적"],
+        "sinks": ["건설 즉시 완료", "프리미엄 건물", "생산 부스트"]
+      },
+      {
+        "name": "목재",
+        "type": "resource",
+        "sources": ["벌목소 생산", "방치 수익"],
+        "sinks": ["건물 건설", "업그레이드"]
+      },
+      {
+        "name": "석재",
+        "type": "resource",
+        "sources": ["채석장 생산", "방치 수익"],
+        "sinks": ["고급 건물 건설", "성벽 건설"]
+      }
+    ],
+    "monetization": {
+      "model": "F2P + IAP",
+      "iap_items": ["보석 패키지", "프리미엄 건물 팩", "성장 가속 패키지"],
+      "ad_placements": ["보상형 광고 (생산 2배, 즉시 완료)"]
+    }
+  },
+  "building_system": {
+    "categories": [
+      "생산 건물",
+      "주거 건물",
+      "문화 건물",
+      "군사 건물",
+      "특수 건물"
+    ],
+    "upgrade_system": {
+      "max_level": 50,
+      "level_benefits": ["생산량 증가", "효율 증가", "외형 변화"]
+    }
+  },
+  "technical": {
+    "platform": ["Android", "iOS"],
+    "engine": "Flutter + Flame",
+    "backend": "Firebase + Cloud Functions",
+    "analytics": "GA4 + BigQuery"
+  }
+}

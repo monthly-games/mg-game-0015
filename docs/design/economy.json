@@ -1,0 +1,155 @@
+{
+  "version": "0.1.0",
+  "currencies": {
+    "gold": {
+      "display_name": "골드",
+      "icon": "assets/icons/gold.png",
+      "initial_amount": 10000,
+      "sources": {
+        "idle_income": {
+          "base_per_hour": 500,
+          "max_accumulation_hours": 12,
+          "building_bonus_multiplier": 1.1
+        },
+        "building_production": {
+          "farm": 100,
+          "workshop": 200,
+          "market": 500,
+          "per_hour": true
+        },
+        "quest_complete": {
+          "daily": 2000,
+          "chapter": 5000
+        }
+      },
+      "sinks": {
+        "building_construct": {
+          "basic": 1000,
+          "advanced": 5000,
+          "premium": 20000
+        },
+        "building_upgrade": {
+          "base_cost": 500,
+          "level_multiplier": 1.6
+        },
+        "citizen_hire": {
+          "common": 1000,
+          "rare": 5000,
+          "epic": 20000
+        }
+      }
+    },
+    "gems": {
+      "display_name": "보석",
+      "icon": "assets/icons/gem.png",
+      "initial_amount": 100,
+      "iap_packages": [
+        { "gems": 100, "price_usd": 0.99 },
+        { "gems": 500, "price_usd": 4.99 },
+        { "gems": 1200, "price_usd": 9.99 },
+        { "gems": 3000, "price_usd": 19.99 },
+        { "gems": 8000, "price_usd": 49.99 }
+      ],
+      "uses": {
+        "instant_build": "dynamic",
+        "production_boost_1h": 50,
+        "production_boost_24h": 300,
+        "premium_building": 500
+      }
+    },
+    "wood": {
+      "display_name": "목재",
+      "icon": "assets/icons/wood.png",
+      "initial_amount": 500,
+      "sources": {
+        "lumber_mill": {
+          "per_hour": 50,
+          "upgrade_bonus": 10
+        },
+        "idle_income": {
+          "per_hour": 20
+        }
+      },
+      "sinks": {
+        "building_construct": {
+          "small": 100,
+          "medium": 500,
+          "large": 2000
+        }
+      }
+    },
+    "stone": {
+      "display_name": "석재",
+      "icon": "assets/icons/stone.png",
+      "initial_amount": 200,
+      "sources": {
+        "quarry": {
+          "per_hour": 30,
+          "upgrade_bonus": 8
+        },
+        "idle_income": {
+          "per_hour": 10
+        }
+      },
+      "sinks": {
+        "building_construct": {
+          "defensive": 500,
+          "cultural": 1000,
+          "castle": 5000
+        }
+      }
+    }
+  },
+  "buildings": {
+    "production": [
+      {
+        "id": "farm",
+        "name": "농장",
+        "cost": { "gold": 1000, "wood": 100 },
+        "production": { "gold": 100, "per_hour": true },
+        "max_level": 50
+      },
+      {
+        "id": "lumber_mill",
+        "name": "벌목소",
+        "cost": { "gold": 2000, "stone": 50 },
+        "production": { "wood": 50, "per_hour": true },
+        "max_level": 50
+      },
+      {
+        "id": "quarry",
+        "name": "채석장",
+        "cost": { "gold": 3000, "wood": 200 },
+        "production": { "stone": 30, "per_hour": true },
+        "max_level": 50
+      }
+    ],
+    "residential": [
+      {
+        "id": "house",
+        "name": "주택",
+        "cost": { "gold": 500, "wood": 50 },
+        "citizen_capacity": 2,
+        "max_level": 30
+      },
+      {
+        "id": "mansion",
+        "name": "저택",
+        "cost": { "gold": 5000, "wood": 500, "stone": 300 },
+        "citizen_capacity": 10,
+        "max_level": 20,
+        "unlocked_chapter": 3
+      }
+    ],
+    "special": [
+      {
+        "id": "castle",
+        "name": "성",
+        "cost": { "gold": 100000, "wood": 5000, "stone": 10000 },
+        "effects": ["all_production_+20%", "citizen_capacity_+50"],
+        "max_level": 10,
+        "unlocked_chapter": 5
+      }
+    ]
+  }
+}
