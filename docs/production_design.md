@@ -273,17 +273,17 @@ Duration buildTime(Building building, int targetLevel) {
 ## 6. 프로덕션 체크리스트
 
 ### 핵심 기능
-- [ ] 건물 건설 시스템
-- [ ] 자원 생산/관리
-- [ ] 방치 수익
-- [ ] 주민 시스템
+- [x] 건물 건설 시스템 (ResourceManager: placeBuilding, GridSystem 20x20)
+- [x] 자원 생산/관리 (gold/wood/stone, tick 자동 생산)
+- [x] 방치 수익 (저장/로드 지원, 건물별 production)
+- [x] 주민 시스템 (workers 배치, populationBonus, storageBonus)
 - [ ] 스토리 시스템
 
 ### 콘텐츠
-- [ ] 50+ 건물 종류
+- [ ] 50+ 건물 종류 (현재 4종: Castle/LumberMill/StoneQuarry/House)
 - [ ] 7 챕터 스토리
 - [ ] 5+ 지역
-- [ ] 튜토리얼
+- [x] 튜토리얼 (TutorialOverlay)
 - [ ] NPC 대화
 
 ### 메타 시스템
