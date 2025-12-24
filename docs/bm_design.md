@@ -1,7 +1,13 @@
-# 왕국 재건 프로젝트 - BM 설계 문서
+﻿# 왕국 재건 프로젝트 - BM 설계 문서
 
 > game_id: game_0015
 > repo: mg-game-0015
+> title_kr: 왕국 재건 프로젝트
+> title_en: Kingdom Rebuild Project
+> genre_tags: idle, city_building, story
+> doc_type: bm_design
+> source_of_truth: docs/design/gdd_game_0015.json
+> last_updated: 2025-12-19
 
 ---
 
