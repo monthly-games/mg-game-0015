@@ -363,8 +363,8 @@ class KingdomHud extends StatelessWidget {
   Widget _buildBuildingList(BuildContext context, ResourceManager resources) {
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.all(12.0),
+        const Padding(
+          padding: EdgeInsets.all(12.0),
           child: Text("Kingdom Overview", style: AppTextStyles.header2),
         ),
         Expanded(

@@ -1,4 +1,4 @@
-import 'building_instance.dart'; // Circular dependency for type enum if needed, or just keep enum here?
+// Circular dependency for type enum if needed, or just keep enum here?
 // Better to move Enum to a shared file or keep in definition.
 
 enum BuildingType { castle, lumberMill, stoneQuarry, house }

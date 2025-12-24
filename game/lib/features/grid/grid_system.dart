@@ -1,6 +1,5 @@
 import 'package:flame/extensions.dart';
 import 'dart:math';
-import '../buildings/building_instance.dart';
 
 class GridSystem {
   static const int gridWidth = 20;

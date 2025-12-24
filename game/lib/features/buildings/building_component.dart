@@ -86,14 +86,14 @@ class BuildingComponent extends PositionComponent with HasGameRef {
     canvas.drawRect(Rect.fromLTWH(10, 40, width - 20, height - 40), wallPaint);
 
     // Battlements
-    canvas.drawRect(Rect.fromLTWH(10, 30, 15, 10), wallPaint);
-    canvas.drawRect(Rect.fromLTWH(35, 30, 15, 10), wallPaint);
-    canvas.drawRect(Rect.fromLTWH(60, 30, 15, 10), wallPaint);
-    canvas.drawRect(Rect.fromLTWH(85, 30, 15, 10), wallPaint);
+    canvas.drawRect(const Rect.fromLTWH(10, 30, 15, 10), wallPaint);
+    canvas.drawRect(const Rect.fromLTWH(35, 30, 15, 10), wallPaint);
+    canvas.drawRect(const Rect.fromLTWH(60, 30, 15, 10), wallPaint);
+    canvas.drawRect(const Rect.fromLTWH(85, 30, 15, 10), wallPaint);
 
     // Gate
     canvas.drawArc(
-      Rect.fromLTWH(35, 60, 30, 40),
+      const Rect.fromLTWH(35, 60, 30, 40),
       3.14,
       3.14,
       true,
@@ -148,9 +148,9 @@ class BuildingComponent extends PositionComponent with HasGameRef {
 
     // Rocks
     final rockPaint = Paint()..color = Colors.grey[600]!;
-    canvas.drawCircle(Offset(30, 70), 10, rockPaint);
-    canvas.drawCircle(Offset(60, 80), 15, rockPaint);
-    canvas.drawCircle(Offset(80, 60), 8, rockPaint);
+    canvas.drawCircle(const Offset(30, 70), 10, rockPaint);
+    canvas.drawCircle(const Offset(60, 80), 15, rockPaint);
+    canvas.drawCircle(const Offset(80, 60), 8, rockPaint);
 
     // Crane
     final cranePaint = Paint()
@@ -161,7 +161,7 @@ class BuildingComponent extends PositionComponent with HasGameRef {
       Offset(width - 20, 20),
       cranePaint,
     );
-    canvas.drawLine(Offset(width - 20, 20), Offset(20, 40), cranePaint);
+    canvas.drawLine(Offset(width - 20, 20), const Offset(20, 40), cranePaint);
   }
 
   void _drawHouse(Canvas canvas) {

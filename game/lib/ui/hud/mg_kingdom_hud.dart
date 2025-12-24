@@ -40,7 +40,7 @@ class MGKingdomHud extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Padding(
-        padding: EdgeInsets.all(MGSpacing.sm),
+        padding: const EdgeInsets.all(MGSpacing.sm),
         child: Column(
           children: [
             // 상단 HUD
@@ -49,15 +49,15 @@ class MGKingdomHud extends StatelessWidget {
               children: [
                 // 왼쪽: 왕국 레벨
                 _buildKingdomLevel(),
-                SizedBox(width: MGSpacing.sm),
+                const SizedBox(width: MGSpacing.sm),
                 // 중앙: 자원 표시
                 Expanded(child: _buildResourcePanel()),
-                SizedBox(width: MGSpacing.sm),
+                const SizedBox(width: MGSpacing.sm),
                 // 오른쪽: 버튼들
                 _buildActionButtons(),
               ],
             ),
-            SizedBox(height: MGSpacing.xs),
+            const SizedBox(height: MGSpacing.xs),
             // 인구 & 행복도
             _buildPopulationBar(),
           ],
@@ -68,7 +68,7 @@ class MGKingdomHud extends StatelessWidget {
 
   Widget _buildKingdomLevel() {
     return Container(
-      padding: EdgeInsets.all(MGSpacing.sm),
+      padding: const EdgeInsets.all(MGSpacing.sm),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -91,8 +91,8 @@ class MGKingdomHud extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.castle, color: Colors.white, size: 28),
-          SizedBox(height: MGSpacing.xxs),
+          const Icon(Icons.castle, color: Colors.white, size: 28),
+          const SizedBox(height: MGSpacing.xxs),
           Text(
             'Lv.$kingdomLevel',
             style: MGTextStyles.buttonMedium.copyWith(
@@ -107,7 +107,7 @@ class MGKingdomHud extends StatelessWidget {
 
   Widget _buildResourcePanel() {
     return Container(
-      padding: EdgeInsets.all(MGSpacing.xs),
+      padding: const EdgeInsets.all(MGSpacing.xs),
       decoration: BoxDecoration(
         color: MGColors.surface.withOpacity(0.85),
         borderRadius: BorderRadius.circular(MGSpacing.sm),
@@ -123,7 +123,7 @@ class MGKingdomHud extends StatelessWidget {
               Expanded(child: _buildResourceItem(Icons.park, wood, Colors.brown)),
             ],
           ),
-          SizedBox(height: MGSpacing.xxs),
+          const SizedBox(height: MGSpacing.xxs),
           // 2행: 돌, 음식
           Row(
             children: [
@@ -141,7 +141,7 @@ class MGKingdomHud extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(icon, color: color, size: 16),
-        SizedBox(width: MGSpacing.xxs),
+        const SizedBox(width: MGSpacing.xxs),
         Text(
           _formatNumber(value),
           style: MGTextStyles.caption.copyWith(
@@ -181,7 +181,7 @@ class MGKingdomHud extends StatelessWidget {
 
   Widget _buildPopulationBar() {
     return Container(
-      padding: EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: MGSpacing.sm,
         vertical: MGSpacing.xs,
       ),
@@ -193,15 +193,15 @@ class MGKingdomHud extends StatelessWidget {
       child: Row(
         children: [
           // 인구
-          Icon(Icons.people, color: Colors.blue, size: 16),
-          SizedBox(width: MGSpacing.xxs),
+          const Icon(Icons.people, color: Colors.blue, size: 16),
+          const SizedBox(width: MGSpacing.xxs),
           Text(
             '$population/$maxPopulation',
             style: MGTextStyles.caption.copyWith(
               color: Colors.white,
             ),
           ),
-          SizedBox(width: MGSpacing.sm),
+          const SizedBox(width: MGSpacing.sm),
           Expanded(
             child: MGLinearProgress(
               value: population / maxPopulation,
@@ -210,14 +210,14 @@ class MGKingdomHud extends StatelessWidget {
               progressColor: Colors.blue,
             ),
           ),
-          SizedBox(width: MGSpacing.md),
+          const SizedBox(width: MGSpacing.md),
           // 행복도
           Icon(
             _getHappinessIcon(),
             color: _getHappinessColor(),
             size: 16,
           ),
-          SizedBox(width: MGSpacing.xxs),
+          const SizedBox(width: MGSpacing.xxs),
           Text(
             '$happiness%',
             style: MGTextStyles.caption.copyWith(

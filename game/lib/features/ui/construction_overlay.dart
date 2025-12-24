@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../game/kingdom_game.dart';
-import '../buildings/building_definition.dart';
 import '../resources/resource_manager.dart';
 import 'package:mg_common_game/core/ui/theme/app_colors.dart';
 import 'package:mg_common_game/core/ui/theme/app_text_styles.dart';
@@ -11,11 +10,11 @@ class ConstructionOverlay extends StatelessWidget {
   final VoidCallback onClose;
 
   const ConstructionOverlay({
-    Key? key,
+    super.key,
     required this.game,
     required this.resourceManager,
     required this.onClose,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

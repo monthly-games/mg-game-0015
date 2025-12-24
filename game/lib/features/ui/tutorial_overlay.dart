@@ -17,14 +17,14 @@ class TutorialOverlay extends StatelessWidget {
           color: AppColors.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: AppColors.primary, width: 2),
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(color: Colors.black54, blurRadius: 20, spreadRadius: 5),
           ],
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("Welcome to Kingdom Rebuild!", style: AppTextStyles.header1),
+            const Text("Welcome to Kingdom Rebuild!", style: AppTextStyles.header1),
             const SizedBox(height: 16),
             const Text(
               "Your goal is to rebuild the kingdom.\n\n"
