@@ -17,11 +17,6 @@ import 'features/buildings/building_instance.dart';
 import 'features/ui/construction_overlay.dart';
 import 'features/ui/tutorial_overlay.dart';
 import 'game/kingdom_game.dart';
-import 'package:mg_common_game/systems/progression/prestige_manager.dart';
-import 'screens/gacha_screen.dart';
-import 'screens/daily_quest_screen.dart';
-import 'screens/achievement_screen.dart';
-import 'screens/battlepass_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,10 +33,6 @@ void main() async {
   );
 }
 
-// Screen route names for retention UI navigation
-const _kGachaRoute = '/gacha';
-const _kDailyQuestsRoute = '/daily-quests';
-
 void _setupDI() {
   if (!GetIt.I.isRegistered<AudioManager>()) {
     GetIt.I.registerSingleton<AudioManager>(AudioManager());
@@ -54,13 +45,6 @@ void _setupDI() {
   GetIt.I.registerSingleton(DailyQuestManager());
   // Gacha 시스템
   GetIt.I.registerSingleton(GachaManager());
-
-  // Prestige 시스템 (mg_common_game)
-  if (!GetIt.I.isRegistered<PrestigeManager>()) {
-    final prestigeManager = PrestigeManager();
-    GetIt.I.registerSingleton(prestigeManager);
-    _setupPrestige(prestigeManager);
-  }
   _setupGacha();
   _registerDailyQuests();
   }
@@ -247,13 +231,6 @@ class KingdomApp extends StatelessWidget {
         ),
       ),
       home: const KingdomScreen(),
-      routes: {
-        '/gacha': (_) => const GachaScreen(),
-        '/daily-quests': (_) => const DailyQuestScreen(),
-          '/daily_quest': (_) => const DailyQuestScreen(),
-          '/achievement': (_) => const AchievementScreen(),
-          '/battlepass': (_) => const BattlePassScreen(),
-        },
     );
   }
 }
@@ -481,7 +458,7 @@ class KingdomHud extends StatelessWidget {
                 // Icon
                 CircleAvatar(
                   radius: 30,
-                  backgroundColor: _getBuildingColor(b.type).withValues(alpha: 0.2),
+                  backgroundColor: _getBuildingColor(b.type).withOpacity(0.2),
                   child: Icon(
                     _getBuildingIcon(b.type),
                     size: 30,
@@ -725,64 +702,4 @@ void _setupGacha() {
       ),
     ],
   ));
-}
-
-void _setupPrestige(PrestigeManager manager) {
-  // ── Prestige Upgrades (idle game defaults) ──────────────────
-  // Five core upgrades for idle games
-  manager.registerPrestigeUpgrade(PrestigeUpgrade(
-    id: 'gold_multiplier',
-    name: '골드 배수',
-    description: '골드 획득량 +10%',
-    maxLevel: 50,
-    costPerLevel: 1,
-    bonusPerLevel: 0.1,
-  ));
-
-  manager.registerPrestigeUpgrade(PrestigeUpgrade(
-    id: 'xp_boost',
-    name: 'XP 부스트',
-    description: 'XP 획득량 +15%',
-    maxLevel: 40,
-    costPerLevel: 2,
-    bonusPerLevel: 0.15,
-  ));
-
-  manager.registerPrestigeUpgrade(PrestigeUpgrade(
-    id: 'production_speed',
-    name: '생산 속도',
-    description: '생산 속도 +20%',
-    maxLevel: 30,
-    costPerLevel: 2,
-    bonusPerLevel: 0.2,
-  ));
-
-  manager.registerPrestigeUpgrade(PrestigeUpgrade(
-    id: 'starting_resources',
-    name: '초기 자원',
-    description: '초기 자원 +5%',
-    maxLevel: 60,
-    costPerLevel: 1,
-    bonusPerLevel: 0.05,
-  ));
-
-  manager.registerPrestigeUpgrade(PrestigeUpgrade(
-    id: 'offline_income',
-    name: '오프라인 수익',
-    description: '오프라인 수익 +20%',
-    maxLevel: 30,
-    costPerLevel: 3,
-    bonusPerLevel: 0.2,
-  ));
-
-  // ── Prestige Reset Callbacks ────────────────────────────────
-  // TODO: Add game-specific reset callbacks:
-  // manager.registerResetCallback(() {
-  //   if (GetIt.I.isRegistered<ProgressionManager>()) {
-  //     GetIt.I<ProgressionManager>().reset();
-  //   }
-  //   if (GetIt.I.isRegistered<UpgradeManager>()) {
-  //     GetIt.I<UpgradeManager>().reset();
-  //   }
-  // });
 }

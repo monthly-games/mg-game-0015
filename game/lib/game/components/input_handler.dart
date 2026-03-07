@@ -2,7 +2,7 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:get_it/get_it.dart';
 import '../kingdom_game.dart';
-import '../../core/audio/audio_manager.dart';
+import 'package:mg_common_game/core/audio/audio_manager.dart';
 
 class InputHandlerComponent extends PositionComponent
     with TapCallbacks, HasGameReference<KingdomGame> {

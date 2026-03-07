@@ -68,7 +68,7 @@ class BuildingComponent extends PositionComponent with HasGameRef {
 
   void _drawConstructionSite(Canvas canvas) {
     final paint = Paint()
-      ..color = Colors.brown.withOpacity(0.5)
+      ..color = Colors.brown.withValues(alpha: 0.5)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
     canvas.drawRect(Rect.fromLTWH(10, height - 10, width - 20, 10), paint);

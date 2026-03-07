@@ -26,7 +26,7 @@ class ConstructionOverlay extends StatelessWidget {
       right: 20,
       height: 200,
       child: Material(
-        color: AppColors.surface.withOpacity(0.9),
+        color: AppColors.surface.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(16),
         child: Column(
           children: [
@@ -36,7 +36,7 @@ class ConstructionOverlay extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Construction", style: AppTextStyles.title),
+                  Text("Construction", style: AppTextStyles.header2),
                   IconButton(icon: const Icon(Icons.close), onPressed: onClose),
                 ],
               ),
@@ -58,12 +58,12 @@ class ConstructionOverlay extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: AppColors.background,
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppColors.divider),
+                      border: Border.all(color: AppColors.border),
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(def.name, style: AppTextStyles.bodyBold),
+                        Text(def.name, style: AppTextStyles.body),
                         const SizedBox(height: 4),
                         Text(
                           "Cost: ${def.baseCost.toInt()}",

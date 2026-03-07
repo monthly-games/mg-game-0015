@@ -72,8 +72,8 @@ class MGKingdomHud extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Colors.amber.withOpacity(0.8),
-            Colors.orange.withOpacity(0.6),
+            Colors.amber.withValues(alpha: 0.8),
+            Colors.orange.withValues(alpha: 0.6),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -82,7 +82,7 @@ class MGKingdomHud extends StatelessWidget {
         border: Border.all(color: Colors.amber, width: 2),
         boxShadow: [
           BoxShadow(
-            color: Colors.amber.withOpacity(0.3),
+            color: Colors.amber.withValues(alpha: 0.3),
             blurRadius: 8,
             spreadRadius: 1,
           ),
@@ -109,7 +109,7 @@ class MGKingdomHud extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(MGSpacing.xs),
       decoration: BoxDecoration(
-        color: MGColors.surface.withOpacity(0.85),
+        color: MGColors.surface.withValues(alpha: 0.85),
         borderRadius: BorderRadius.circular(MGSpacing.sm),
         border: Border.all(color: MGColors.border),
       ),
@@ -186,7 +186,7 @@ class MGKingdomHud extends StatelessWidget {
         vertical: MGSpacing.xs,
       ),
       decoration: BoxDecoration(
-        color: MGColors.surface.withOpacity(0.85),
+        color: MGColors.surface.withValues(alpha: 0.85),
         borderRadius: BorderRadius.circular(MGSpacing.xs),
         border: Border.all(color: MGColors.border),
       ),
@@ -206,7 +206,7 @@ class MGKingdomHud extends StatelessWidget {
             child: MGLinearProgress(
               value: population / maxPopulation,
               height: 8,
-              backgroundColor: Colors.blue.withOpacity(0.3),
+              backgroundColor: Colors.blue.withValues(alpha: 0.3),
               progressColor: Colors.blue,
             ),
           ),
