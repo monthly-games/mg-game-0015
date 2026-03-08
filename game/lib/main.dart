@@ -22,6 +22,7 @@ import 'screens/gacha_screen.dart';
 import 'screens/daily_quest_screen.dart';
 import 'screens/achievement_screen.dart';
 import 'screens/battlepass_screen.dart';
+import 'package:mg_common_game/core/ui/theme/mg_colors.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -360,7 +361,7 @@ class KingdomHud extends StatelessWidget {
                     ),
                     _buildResourceItem(
                       Icons.landscape,
-                      Colors.grey,
+                      MGColors.common,
                       resources.stone,
                     ),
                   ],
@@ -546,10 +547,10 @@ class KingdomHud extends StatelessWidget {
                 const Divider(),
                 // Demolish
                 TextButton.icon(
-                  icon: const Icon(Icons.delete, color: Colors.red),
+                  icon: const Icon(Icons.delete, color: MGColors.error),
                   label: const Text(
                     "Demolish (50% Refund)",
-                    style: TextStyle(color: Colors.red),
+                    style: TextStyle(color: MGColors.error),
                   ),
                   onPressed: () {
                     resources.removeBuilding(b.id);
@@ -625,7 +626,7 @@ class KingdomHud extends StatelessWidget {
   Color _getBuildingColor(BuildingType type) {
     switch (type) {
       case BuildingType.castle:
-        return Colors.grey;
+        return MGColors.common;
       case BuildingType.lumberMill:
         return Colors.brown;
       case BuildingType.stoneQuarry:

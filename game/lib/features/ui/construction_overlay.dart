@@ -3,6 +3,7 @@ import '../../game/kingdom_game.dart';
 import '../resources/resource_manager.dart';
 import 'package:mg_common_game/core/ui/theme/app_colors.dart';
 import 'package:mg_common_game/core/ui/theme/app_text_styles.dart';
+import 'package:mg_common_game/core/ui/theme/mg_colors.dart';
 
 class ConstructionOverlay extends StatelessWidget {
   final KingdomGame game;
@@ -68,7 +69,7 @@ class ConstructionOverlay extends StatelessWidget {
                         Text(
                           "Cost: ${def.baseCost.toInt()}",
                           style: TextStyle(
-                            color: canAfford ? Colors.green : Colors.red,
+                            color: canAfford ? MGColors.success : MGColors.error,
                             fontSize: 12,
                           ),
                         ),

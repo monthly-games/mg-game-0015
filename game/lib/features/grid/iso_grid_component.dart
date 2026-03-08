@@ -2,6 +2,7 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import '../../game/kingdom_game.dart';
 import 'grid_system.dart';
+import 'package:mg_common_game/core/ui/theme/mg_colors.dart';
 
 class IsoGridComponent extends PositionComponent
     with HasGameReference<KingdomGame> {
@@ -15,7 +16,7 @@ class IsoGridComponent extends PositionComponent
     super.render(canvas);
 
     final paint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.3)
+      ..color = MGColors.textHighEmphasis.withValues(alpha: 0.3)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
 

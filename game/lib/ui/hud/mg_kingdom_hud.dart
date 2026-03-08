@@ -73,7 +73,7 @@ class MGKingdomHud extends StatelessWidget {
         gradient: LinearGradient(
           colors: [
             Colors.amber.withValues(alpha: 0.8),
-            Colors.orange.withValues(alpha: 0.6),
+            MGColors.warning.withValues(alpha: 0.6),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -91,12 +91,12 @@ class MGKingdomHud extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.castle, color: Colors.white, size: 28),
+          const Icon(Icons.castle, color: MGColors.textHighEmphasis, size: 28),
           const SizedBox(height: MGSpacing.xxs),
           Text(
             'Lv.$kingdomLevel',
             style: MGTextStyles.buttonMedium.copyWith(
-              color: Colors.white,
+              color: MGColors.textHighEmphasis,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -127,8 +127,8 @@ class MGKingdomHud extends StatelessWidget {
           // 2행: 돌, 음식
           Row(
             children: [
-              Expanded(child: _buildResourceItem(Icons.terrain, stone, Colors.grey)),
-              Expanded(child: _buildResourceItem(Icons.restaurant, food, Colors.green)),
+              Expanded(child: _buildResourceItem(Icons.terrain, stone, MGColors.common)),
+              Expanded(child: _buildResourceItem(Icons.restaurant, food, MGColors.success)),
             ],
           ),
         ],
@@ -145,7 +145,7 @@ class MGKingdomHud extends StatelessWidget {
         Text(
           _formatNumber(value),
           style: MGTextStyles.caption.copyWith(
-            color: Colors.white,
+            color: MGColors.textHighEmphasis,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -193,12 +193,12 @@ class MGKingdomHud extends StatelessWidget {
       child: Row(
         children: [
           // 인구
-          const Icon(Icons.people, color: Colors.blue, size: 16),
+          const Icon(Icons.people, color: MGColors.info, size: 16),
           const SizedBox(width: MGSpacing.xxs),
           Text(
             '$population/$maxPopulation',
             style: MGTextStyles.caption.copyWith(
-              color: Colors.white,
+              color: MGColors.textHighEmphasis,
             ),
           ),
           const SizedBox(width: MGSpacing.sm),
@@ -206,8 +206,8 @@ class MGKingdomHud extends StatelessWidget {
             child: MGLinearProgress(
               value: population / maxPopulation,
               height: 8,
-              backgroundColor: Colors.blue.withValues(alpha: 0.3),
-              progressColor: Colors.blue,
+              backgroundColor: MGColors.info.withValues(alpha: 0.3),
+              progressColor: MGColors.info,
             ),
           ),
           const SizedBox(width: MGSpacing.md),
@@ -239,11 +239,11 @@ class MGKingdomHud extends StatelessWidget {
   }
 
   Color _getHappinessColor() {
-    if (happiness >= 80) return Colors.green;
+    if (happiness >= 80) return MGColors.success;
     if (happiness >= 60) return Colors.lightGreen;
     if (happiness >= 40) return Colors.yellow;
-    if (happiness >= 20) return Colors.orange;
-    return Colors.red;
+    if (happiness >= 20) return MGColors.warning;
+    return MGColors.error;
   }
 
   String _formatNumber(int value) {

@@ -2,6 +2,7 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'building_definition.dart';
 import 'building_instance.dart';
+import 'package:mg_common_game/core/ui/theme/mg_colors.dart';
 
 class BuildingComponent extends PositionComponent with HasGameRef {
   final BuildingInstance data;
@@ -112,7 +113,7 @@ class BuildingComponent extends PositionComponent with HasGameRef {
         ..moveTo(width / 2, 0)
         ..lineTo(width / 2 + 20, 10)
         ..lineTo(width / 2, 20),
-      Paint()..color = Colors.red,
+      Paint()..color = MGColors.error,
     );
   }
 
