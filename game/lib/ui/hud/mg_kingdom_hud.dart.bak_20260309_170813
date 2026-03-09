@@ -20,7 +20,6 @@ class MGKingdomHud extends StatelessWidget {
   final VoidCallback? onPause;
   final VoidCallback? onBuildMenu;
   final VoidCallback? onInventory;
-  final VoidCallback? onDailyHub;
 
   const MGKingdomHud({
     super.key,
@@ -35,7 +34,6 @@ class MGKingdomHud extends StatelessWidget {
     this.onPause,
     this.onBuildMenu,
     this.onInventory,
-    this.onDailyHub,
   });
 
   @override
@@ -171,13 +169,6 @@ class MGKingdomHud extends StatelessWidget {
             onPressed: onInventory!,
             size: MGIconButtonSize.small,
           ),
-                if (onDailyHub != null)
-                  MGIconButton(
-                    icon: Icons.calendar_today,
-                    onPressed: onDailyHub!,
-                    buttonSize: MGIconButtonSize.small,
-                  ),
-                const SizedBox(width: MGSpacing.xs),
         if (onPause != null)
           MGIconButton(
             icon: Icons.pause,
