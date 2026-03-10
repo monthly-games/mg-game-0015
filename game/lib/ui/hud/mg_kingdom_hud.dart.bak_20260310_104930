@@ -21,9 +21,6 @@ class MGKingdomHud extends StatelessWidget {
   final VoidCallback? onBuildMenu;
   final VoidCallback? onInventory;
   final VoidCallback? onDailyHub;
-  final VoidCallback? onGuildWar;
-  final VoidCallback? onTournament;
-  final VoidCallback? onSeasonalEvent;
 
   const MGKingdomHud({
     super.key,
@@ -39,9 +36,6 @@ class MGKingdomHud extends StatelessWidget {
     this.onBuildMenu,
     this.onInventory,
     this.onDailyHub,
-    this.onGuildWar,
-    this.onTournament,
-    this.onSeasonalEvent,
   });
 
   @override
@@ -177,27 +171,6 @@ class MGKingdomHud extends StatelessWidget {
             onPressed: onInventory!,
             size: MGIconButtonSize.small,
           ),
-                if (onGuildWar != null)
-                  MGIconButton(
-                    icon: Icons.shield,
-                    onPressed: onGuildWar!,
-                    buttonSize: MGIconButtonSize.small,
-                  ),
-                const SizedBox(width: MGSpacing.xs),
-                if (onTournament != null)
-                  MGIconButton(
-                    icon: Icons.emoji_events,
-                    onPressed: onTournament!,
-                    buttonSize: MGIconButtonSize.small,
-                  ),
-                const SizedBox(width: MGSpacing.xs),
-                if (onSeasonalEvent != null)
-                  MGIconButton(
-                    icon: Icons.celebration,
-                    onPressed: onSeasonalEvent!,
-                    buttonSize: MGIconButtonSize.small,
-                  ),
-                const SizedBox(width: MGSpacing.xs),
                 if (onDailyHub != null)
                   MGIconButton(
                     icon: Icons.calendar_today,
