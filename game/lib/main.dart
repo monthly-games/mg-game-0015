@@ -338,7 +338,21 @@ class _KingdomScreenState extends State<KingdomScreen> {
             game: KingdomGame(resourceManager: resourceManager),
             overlayBuilderMap: {
               'HUD': (BuildContext context, KingdomGame game) {
-                return KingdomHud(game: game);
+                return KingdomHud(
+                  game: game,
+                  onGuildWar: () {
+                    game.pauseEngine();
+                    Navigator.of(context).pushNamed('/guild-war').then((_) => game.resumeEngine());
+                  },
+                  onTournament: () {
+                    game.pauseEngine();
+                    Navigator.of(context).pushNamed('/tournament').then((_) => game.resumeEngine());
+                  },
+                  onSeasonalEvent: () {
+                    game.pauseEngine();
+                    Navigator.of(context).pushNamed('/seasonal-event').then((_) => game.resumeEngine());
+                  },
+                );
               },
               'construction': (BuildContext context, KingdomGame game) {
                 return ConstructionOverlay(
