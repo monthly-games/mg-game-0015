@@ -4,7 +4,7 @@ import 'building_definition.dart';
 import 'building_instance.dart';
 import 'package:mg_common_game/core/ui/theme/mg_colors.dart';
 
-class BuildingComponent extends PositionComponent with HasGameRef {
+class BuildingComponent extends PositionComponent with HasGameReference {
   final BuildingInstance data;
   Sprite? _sprite;
 
@@ -32,9 +32,9 @@ class BuildingComponent extends PositionComponent with HasGameRef {
     }
 
     try {
-      _sprite = await gameRef.loadSprite(spriteName);
+      _sprite = await game.loadSprite(spriteName);
     } catch (e) {
-      print('Failed to load sprite $spriteName: $e');
+      debugPrint('Failed to load sprite $spriteName: $e');
     }
   }
 

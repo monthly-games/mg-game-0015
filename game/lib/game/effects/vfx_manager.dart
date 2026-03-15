@@ -6,21 +6,21 @@ import 'package:flutter/material.dart';
 
 /// VFX Manager for Kingdom Rebuild Project (MG-0015)
 /// City Building + Idle + Story 게임 전용 이펙트 관리자
-class VfxManager extends Component with HasGameRef {
+class VfxManager extends Component with HasGameReference {
   VfxManager();
   final Random _random = Random();
 
   // Building Effects
   void showBuildingConstruct(Vector2 position) {
-    gameRef.add(_createSparkleEffect(position: position, color: Colors.amber, count: 15));
-    gameRef.add(_createGroundCircle(position: position, color: Colors.green));
-    gameRef.add(_createRisingEffect(position: position, color: Colors.lightBlue, count: 8, speed: 50));
+    game.add(_createSparkleEffect(position: position, color: Colors.amber, count: 15));
+    game.add(_createGroundCircle(position: position, color: Colors.green));
+    game.add(_createRisingEffect(position: position, color: Colors.lightBlue, count: 8, speed: 50));
   }
 
   void showBuildingUpgrade(Vector2 position, int newLevel) {
-    gameRef.add(_createExplosionEffect(position: position, color: Colors.amber, count: 30, radius: 60));
-    gameRef.add(_createSparkleEffect(position: position, color: Colors.yellow, count: 18));
-    gameRef.add(_LevelUpText(position: position, level: newLevel));
+    game.add(_createExplosionEffect(position: position, color: Colors.amber, count: 30, radius: 60));
+    game.add(_createSparkleEffect(position: position, color: Colors.yellow, count: 18));
+    game.add(_LevelUpText(position: position, level: newLevel));
   }
 
   void showKingdomExpansion(Vector2 position) {
@@ -28,15 +28,15 @@ class VfxManager extends Component with HasGameRef {
       Future.delayed(Duration(milliseconds: i * 120), () {
         if (!isMounted) return;
         final offset = Vector2((_random.nextDouble() - 0.5) * 120, (_random.nextDouble() - 0.5) * 80);
-        gameRef.add(_createExplosionEffect(position: position + offset, color: [Colors.amber, Colors.green, Colors.blue][i % 3], count: 20, radius: 50));
+        game.add(_createExplosionEffect(position: position + offset, color: [Colors.amber, Colors.green, Colors.blue][i % 3], count: 20, radius: 50));
       });
     }
-    gameRef.add(_ExpansionText(position: position));
+    game.add(_ExpansionText(position: position));
   }
 
   void showCitizenAssign(Vector2 position) {
-    gameRef.add(_createSparkleEffect(position: position, color: Colors.lightBlue, count: 10));
-    gameRef.add(_createRisingEffect(position: position, color: Colors.cyan, count: 6, speed: 40));
+    game.add(_createSparkleEffect(position: position, color: Colors.lightBlue, count: 10));
+    game.add(_createRisingEffect(position: position, color: Colors.cyan, count: 6, speed: 40));
   }
 
   void showResourceCollect(Vector2 position, String resourceType) {
@@ -48,25 +48,25 @@ class VfxManager extends Component with HasGameRef {
       case 'food': color = Colors.green; break;
       default: color = Colors.white;
     }
-    gameRef.add(_createBurstEffect(position: position, color: color, count: 12, speed: 60, lifespan: 0.5));
+    game.add(_createBurstEffect(position: position, color: color, count: 12, speed: 60, lifespan: 0.5));
     showNumberPopup(position, '+1', color: color);
   }
 
   // Story Effects
   void showStoryUnlock(Vector2 position) {
-    gameRef.add(_createExplosionEffect(position: position, color: Colors.purple, count: 25, radius: 55));
-    gameRef.add(_createSparkleEffect(position: position, color: Colors.white, count: 15));
-    gameRef.add(_StoryText(position: position));
+    game.add(_createExplosionEffect(position: position, color: Colors.purple, count: 25, radius: 55));
+    game.add(_createSparkleEffect(position: position, color: Colors.white, count: 15));
+    game.add(_StoryText(position: position));
   }
 
   void showQuestComplete(Vector2 position) {
-    gameRef.add(_createSparkleEffect(position: position, color: Colors.amber, count: 20));
-    gameRef.add(_createCoinEffect(position: position, count: 10));
+    game.add(_createSparkleEffect(position: position, color: Colors.amber, count: 20));
+    game.add(_createCoinEffect(position: position, count: 10));
     showNumberPopup(position, 'COMPLETE!', color: Colors.amber);
   }
 
   void showNumberPopup(Vector2 position, String text, {Color color = Colors.white}) {
-    gameRef.add(_NumberPopup(position: position, text: text, color: color));
+    game.add(_NumberPopup(position: position, text: text, color: color));
   }
 
   // Private generators
