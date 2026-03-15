@@ -1,15 +1,6 @@
+import 'package:mg_common_game/mg_common_game.dart' hide TutorialOverlay;
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
-import 'package:mg_common_game/core/ui/screens/seasonal_event_screen.dart';
-import 'package:mg_common_game/core/ui/screens/tournament_screen.dart';
-import 'package:mg_common_game/core/ui/screens/guild_war_screen.dart';
-import 'package:mg_common_game/systems/events/seasonal_content_manager.dart';
-import 'package:mg_common_game/systems/competitive/tournament_manager.dart';
-import 'package:mg_common_game/systems/social/guild_war_manager.dart';
-import 'package:mg_common_game/core/ui/screens/daily_hub_screen.dart';
-import 'package:mg_common_game/systems/retention/daily_challenge_manager.dart';
-import 'package:mg_common_game/systems/retention/streak_manager.dart';
-import 'package:mg_common_game/systems/retention/login_rewards_manager.dart';
 import 'package:mg_common_game/systems/gacha/gacha_pool.dart';
 import 'package:mg_common_game/systems/gacha/gacha_manager.dart';
 import 'package:mg_common_game/systems/quests/daily_quest.dart';
@@ -34,11 +25,28 @@ import 'screens/achievement_screen.dart';
 import 'screens/battlepass_screen.dart';
 import 'package:mg_common_game/core/ui/theme/mg_colors.dart';
 import 'screens/collection_screen.dart';
+import 'game/tutorial_config.dart';
+import 'game/balancing_config.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   _setupDI();
   await GetIt.I<AudioManager>().initialize();
+  // ── Tutorial & Balancing (v1.2.0 pilot) ─────────────────────
+  if (!GetIt.I.isRegistered<TutorialManager>()) {
+    final tutorialManager = TutorialManager();
+    await tutorialManager.initialize();
+    tutorialManager.registerTutorial(
+      kOnboardingTutorial.id,
+      kOnboardingTutorial.steps,
+    );
+    GetIt.I.registerSingleton<TutorialManager>(tutorialManager);
+  }
+  if (!GetIt.I.isRegistered<BalancingManager>()) {
+    GetIt.I.registerSingleton<BalancingManager>(
+      BalancingManager(defaultConfig: kDefaultBalancingConfig),
+    );
+  }
   runApp(
     MultiProvider(
       providers: [
@@ -55,211 +63,148 @@ const _kGachaRoute = '/gacha';
 const _kDailyQuestsRoute = '/daily-quests';
 
 void _setupDI() {
-  if (!GetIt.I.isRegistered<AudioManager>()) {
-    GetIt.I.registerSingleton<AudioManager>(AudioManager());
+  final di = GetIt.I;
+
+  if (!di.isRegistered<AudioManager>()) {
+    di.registerSingleton<AudioManager>(AudioManager());
   }
-  if (!GetIt.I.isRegistered<CollectionManager>()) {
+
+  if (!di.isRegistered<CollectionManager>()) {
     final collectionManager = CollectionManager();
     _registerCollections(collectionManager);
-    GetIt.I.registerSingleton<CollectionManager>(collectionManager);
-  // DailyQuest 시스템
-  GetIt.I.registerSingleton(DailyQuestManager());
-  // Gacha 시스템
-  GetIt.I.registerSingleton(GachaManager());
+    di.registerSingleton<CollectionManager>(collectionManager);
+  }
 
-  // Prestige 시스템 (mg_common_game)
-  if (!GetIt.I.isRegistered<PrestigeManager>()) {
+  if (!di.isRegistered<DailyQuestManager>()) {
+    di.registerSingleton(DailyQuestManager());
+  }
+
+  if (!di.isRegistered<GachaManager>()) {
+    di.registerSingleton(GachaManager());
+  }
+
+  if (!di.isRegistered<PrestigeManager>()) {
     final prestigeManager = PrestigeManager();
-    GetIt.I.registerSingleton(prestigeManager);
-  // ── Retention Systems for DailyHub ────────────────────────
-  if (!GetIt.I.isRegistered<LoginRewardsManager>()) {
-    GetIt.I.registerSingleton(LoginRewardsManager());
-  }
-  if (!GetIt.I.isRegistered<StreakManager>()) {
-    GetIt.I.registerSingleton(StreakManager());
-  }
-  if (!GetIt.I.isRegistered<DailyChallengeManager>()) {
-    GetIt.I.registerSingleton(DailyChallengeManager());
-}
-  // ── P3 Engine Systems ─────────────────────────────────────
-  if (!GetIt.I.isRegistered<GuildWarManager>()) {
-    GetIt.I.registerSingleton(GuildWarManager());
-  }
-  if (!GetIt.I.isRegistered<TournamentManager>()) {
-    GetIt.I.registerSingleton(TournamentManager());
-  }
-  if (!GetIt.I.isRegistered<SeasonalContentManager>()) {
-    GetIt.I.registerSingleton(SeasonalContentManager());
-  }
+    di.registerSingleton(prestigeManager);
     _setupPrestige(prestigeManager);
   }
+
+  if (!di.isRegistered<LoginRewardsManager>()) {
+    di.registerSingleton(LoginRewardsManager());
+  }
+  if (!di.isRegistered<StreakManager>()) {
+    di.registerSingleton(StreakManager());
+  }
+  if (!di.isRegistered<DailyChallengeManager>()) {
+    di.registerSingleton(DailyChallengeManager());
+  }
+
+  if (!di.isRegistered<GuildWarManager>()) {
+    di.registerSingleton(GuildWarManager());
+  }
+  if (!di.isRegistered<TournamentManager>()) {
+    di.registerSingleton(TournamentManager());
+  }
+  if (!di.isRegistered<SeasonalContentManager>()) {
+    di.registerSingleton(SeasonalContentManager());
+  }
+
   _setupGacha();
   _registerDailyQuests();
-  }
 }
 
 void _registerCollections(CollectionManager manager) {
-  // Register buildings collection
   manager.registerCollection(
-    'buildings_collection',
-    [
-      CollectibleItem(
-        id: 'building_castle',
-        name: 'Castle',
-        rarity: CollectibleRarity.legendary,
-        metadata: {'type': 'castle'},
+    Collection(
+      id: 'buildings_collection',
+      name: 'Buildings',
+      description: 'Core kingdom buildings',
+      category: 'buildings',
+      items: const [
+        CollectionItem(
+          id: 'building_castle',
+          name: 'Castle',
+          description: 'Main keep of the kingdom',
+          rarity: CollectionRarity.legendary,
+          metadata: {'type': 'castle'},
+        ),
+        CollectionItem(
+          id: 'building_lumber_mill',
+          name: 'Lumber Mill',
+          description: 'Produces wood resources',
+          rarity: CollectionRarity.common,
+          metadata: {'type': 'lumberMill'},
+        ),
+        CollectionItem(
+          id: 'building_stone_quarry',
+          name: 'Stone Quarry',
+          description: 'Produces stone resources',
+          rarity: CollectionRarity.common,
+          metadata: {'type': 'stoneQuarry'},
+        ),
+        CollectionItem(
+          id: 'building_house',
+          name: 'House',
+          description: 'Increases population capacity',
+          rarity: CollectionRarity.common,
+          metadata: {'type': 'house'},
+        ),
+      ],
+      completionReward: const CollectionReward(
+        type: RewardType.gold,
+        amount: 1000,
       ),
-      CollectibleItem(
-        id: 'building_lumber_mill',
-        name: 'Lumber Mill',
-        rarity: CollectibleRarity.common,
-        metadata: {'type': 'lumberMill'},
-      ),
-      CollectibleItem(
-        id: 'building_stone_quarry',
-        name: 'Stone Quarry',
-        rarity: CollectibleRarity.common,
-        metadata: {'type': 'stoneQuarry'},
-      ),
-      CollectibleItem(
-        id: 'building_house',
-        name: 'House',
-        rarity: CollectibleRarity.common,
-        metadata: {'type': 'house'},
-      ),
-    ],
+    ),
   );
 
-  // Register gacha collection (16 items)
   manager.registerCollection(
-    'gacha_collection',
-    [
-      // UR → mythic (2 items)
-      CollectibleItem(
-        id: 'ur_kingdom_001',
-        name: '전설의 Building',
-        rarity: CollectibleRarity.mythic,
-        metadata: {'gacha_rarity': 'UR'},
+    Collection(
+      id: 'gacha_collection',
+      name: 'Kingdom Gacha',
+      description: 'Gacha reward collection',
+      category: 'gacha',
+      items: const [
+        CollectionItem(
+          id: 'ur_kingdom_001',
+          name: 'Legendary Building',
+          description: 'Top-tier building reward',
+          rarity: CollectionRarity.legendary,
+          metadata: {'gacha_rarity': 'UR'},
+        ),
+        CollectionItem(
+          id: 'ssr_kingdom_001',
+          name: 'Heroic Building',
+          description: 'High-tier building reward',
+          rarity: CollectionRarity.epic,
+          metadata: {'gacha_rarity': 'SSR'},
+        ),
+        CollectionItem(
+          id: 'sr_kingdom_001',
+          name: 'Rare Building',
+          description: 'Mid-tier building reward',
+          rarity: CollectionRarity.rare,
+          metadata: {'gacha_rarity': 'SR'},
+        ),
+        CollectionItem(
+          id: 'r_kingdom_001',
+          name: 'Uncommon Building',
+          description: 'Entry-tier building reward',
+          rarity: CollectionRarity.uncommon,
+          metadata: {'gacha_rarity': 'R'},
+        ),
+        CollectionItem(
+          id: 'n_kingdom_001',
+          name: 'Common Building',
+          description: 'Base-tier building reward',
+          rarity: CollectionRarity.common,
+          metadata: {'gacha_rarity': 'N'},
+        ),
+      ],
+      completionReward: const CollectionReward(
+        type: RewardType.gold,
+        amount: 5000,
       ),
-      CollectibleItem(
-        id: 'ur_kingdom_002',
-        name: '신화의 Building',
-        rarity: CollectibleRarity.mythic,
-        metadata: {'gacha_rarity': 'UR'},
-      ),
-      // SSR → legendary (3 items)
-      CollectibleItem(
-        id: 'ssr_kingdom_001',
-        name: '영웅의 Building',
-        rarity: CollectibleRarity.legendary,
-        metadata: {'gacha_rarity': 'SSR'},
-      ),
-      CollectibleItem(
-        id: 'ssr_kingdom_002',
-        name: '고대의 Building',
-        rarity: CollectibleRarity.legendary,
-        metadata: {'gacha_rarity': 'SSR'},
-      ),
-      CollectibleItem(
-        id: 'ssr_kingdom_003',
-        name: '황금의 Building',
-        rarity: CollectibleRarity.legendary,
-        metadata: {'gacha_rarity': 'SSR'},
-      ),
-      // SR → epic (4 items)
-      CollectibleItem(
-        id: 'sr_kingdom_001',
-        name: '희귀한 Building A',
-        rarity: CollectibleRarity.epic,
-        metadata: {'gacha_rarity': 'SR'},
-      ),
-      CollectibleItem(
-        id: 'sr_kingdom_002',
-        name: '희귀한 Building B',
-        rarity: CollectibleRarity.epic,
-        metadata: {'gacha_rarity': 'SR'},
-      ),
-      CollectibleItem(
-        id: 'sr_kingdom_003',
-        name: '희귀한 Building C',
-        rarity: CollectibleRarity.epic,
-        metadata: {'gacha_rarity': 'SR'},
-      ),
-      CollectibleItem(
-        id: 'sr_kingdom_004',
-        name: '희귀한 Building D',
-        rarity: CollectibleRarity.epic,
-        metadata: {'gacha_rarity': 'SR'},
-      ),
-      // R → rare (5 items)
-      CollectibleItem(
-        id: 'r_kingdom_001',
-        name: '우수한 Building A',
-        rarity: CollectibleRarity.rare,
-        metadata: {'gacha_rarity': 'R'},
-      ),
-      CollectibleItem(
-        id: 'r_kingdom_002',
-        name: '우수한 Building B',
-        rarity: CollectibleRarity.rare,
-        metadata: {'gacha_rarity': 'R'},
-      ),
-      CollectibleItem(
-        id: 'r_kingdom_003',
-        name: '우수한 Building C',
-        rarity: CollectibleRarity.rare,
-        metadata: {'gacha_rarity': 'R'},
-      ),
-      CollectibleItem(
-        id: 'r_kingdom_004',
-        name: '우수한 Building D',
-        rarity: CollectibleRarity.rare,
-        metadata: {'gacha_rarity': 'R'},
-      ),
-      CollectibleItem(
-        id: 'r_kingdom_005',
-        name: '우수한 Building E',
-        rarity: CollectibleRarity.rare,
-        metadata: {'gacha_rarity': 'R'},
-      ),
-      // N → common (6 items)
-      CollectibleItem(
-        id: 'n_kingdom_001',
-        name: '일반 Building A',
-        rarity: CollectibleRarity.common,
-        metadata: {'gacha_rarity': 'N'},
-      ),
-      CollectibleItem(
-        id: 'n_kingdom_002',
-        name: '일반 Building B',
-        rarity: CollectibleRarity.common,
-        metadata: {'gacha_rarity': 'N'},
-      ),
-      CollectibleItem(
-        id: 'n_kingdom_003',
-        name: '일반 Building C',
-        rarity: CollectibleRarity.common,
-        metadata: {'gacha_rarity': 'N'},
-      ),
-      CollectibleItem(
-        id: 'n_kingdom_004',
-        name: '일반 Building D',
-        rarity: CollectibleRarity.common,
-        metadata: {'gacha_rarity': 'N'},
-      ),
-      CollectibleItem(
-        id: 'n_kingdom_005',
-        name: '일반 Building E',
-        rarity: CollectibleRarity.common,
-        metadata: {'gacha_rarity': 'N'},
-      ),
-      CollectibleItem(
-        id: 'n_kingdom_006',
-        name: '일반 Building F',
-        rarity: CollectibleRarity.common,
-        metadata: {'gacha_rarity': 'N'},
-      ),
-    ],
+    ),
   );
 }
 
@@ -341,16 +286,13 @@ class _KingdomScreenState extends State<KingdomScreen> {
                 return KingdomHud(
                   game: game,
                   onGuildWar: () {
-                    game.pauseEngine();
-                    Navigator.of(context).pushNamed('/guild-war').then((_) => game.resumeEngine());
+Navigator.of(context).pushNamed('/guild-war');
                   },
                   onTournament: () {
-                    game.pauseEngine();
-                    Navigator.of(context).pushNamed('/tournament').then((_) => game.resumeEngine());
+Navigator.of(context).pushNamed('/tournament');
                   },
                   onSeasonalEvent: () {
-                    game.pauseEngine();
-                    Navigator.of(context).pushNamed('/seasonal-event').then((_) => game.resumeEngine());
+Navigator.of(context).pushNamed('/seasonal-event');
                   },
                 );
               },
@@ -386,7 +328,17 @@ class _KingdomScreenState extends State<KingdomScreen> {
 
 class KingdomHud extends StatelessWidget {
   final KingdomGame game;
-  const KingdomHud({super.key, required this.game});
+  final VoidCallback? onGuildWar;
+  final VoidCallback? onTournament;
+  final VoidCallback? onSeasonalEvent;
+
+  const KingdomHud({
+    super.key,
+    required this.game,
+    this.onGuildWar,
+    this.onTournament,
+    this.onSeasonalEvent,
+  });
 
   @override
   // ... Inside KingdomHud

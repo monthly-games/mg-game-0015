@@ -1,10 +1,8 @@
+import 'package:mg_common_game/mg_common_game.dart';
 import 'package:flutter/material.dart';
 import 'package:mg_common_game/core/ui/theme/mg_colors.dart';
 import 'package:mg_common_game/core/ui/layout/mg_spacing.dart';
 import 'package:mg_common_game/core/ui/typography/mg_text_styles.dart';
-import 'package:mg_common_game/core/ui/widgets/buttons/mg_icon_button.dart';
-import 'package:mg_common_game/core/ui/widgets/progress/mg_linear_progress.dart';
-import 'package:mg_common_game/core/ui/widgets/indicators/mg_resource_bar.dart';
 
 /// MG-0015 Kingdom Rebuild HUD
 /// 왕국 재건 시뮬레이션 게임용 HUD - 자원, 인구, 행복도 표시
@@ -169,13 +167,13 @@ class MGKingdomHud extends StatelessWidget {
           MGIconButton(
             icon: Icons.construction,
             onPressed: onBuildMenu!,
-            size: MGIconButtonSize.small,
+            buttonSize: MGIconButtonSize.small,
           ),
         if (onInventory != null)
           MGIconButton(
             icon: Icons.inventory_2,
             onPressed: onInventory!,
-            size: MGIconButtonSize.small,
+            buttonSize: MGIconButtonSize.small,
           ),
                 if (onGuildWar != null)
                   MGIconButton(
@@ -209,7 +207,7 @@ class MGKingdomHud extends StatelessWidget {
           MGIconButton(
             icon: Icons.pause,
             onPressed: onPause!,
-            size: MGIconButtonSize.small,
+            buttonSize: MGIconButtonSize.small,
           ),
       ],
     );
@@ -243,7 +241,7 @@ class MGKingdomHud extends StatelessWidget {
               value: population / maxPopulation,
               height: 8,
               backgroundColor: MGColors.info.withValues(alpha: 0.3),
-              progressColor: MGColors.info,
+              valueColor: MGColors.info,
             ),
           ),
           const SizedBox(width: MGSpacing.md),
