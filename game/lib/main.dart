@@ -37,6 +37,26 @@ void main() async {
       BalancingManager(defaultConfig: kDefaultBalancingConfig),
     );
   }
+  // ── Q7 DI Fix: Missing Systems ──────────────────────────
+  if (!GetIt.I.isRegistered<BattlePassManager>()) {
+    GetIt.I.registerSingleton<BattlePassManager>(BattlePassManager());
+  }
+  if (!GetIt.I.isRegistered<GachaManager>()) {
+    GetIt.I.registerSingleton<GachaManager>(GachaManager());
+  }
+  if (!GetIt.I.isRegistered<CollectionManager>()) {
+    GetIt.I.registerSingleton<CollectionManager>(CollectionManager());
+  }
+  if (!GetIt.I.isRegistered<GuildWarManager>()) {
+    GetIt.I.registerSingleton<GuildWarManager>(GuildWarManager());
+  }
+  if (!GetIt.I.isRegistered<TournamentManager>()) {
+    GetIt.I.registerSingleton<TournamentManager>(TournamentManager());
+  }
+  if (!GetIt.I.isRegistered<SeasonalContentManager>()) {
+    GetIt.I.registerSingleton<SeasonalContentManager>(SeasonalContentManager());
+  }
+
   runApp(
     MultiProvider(
       providers: [
