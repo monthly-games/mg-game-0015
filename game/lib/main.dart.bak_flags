@@ -1,0 +1,856 @@
+import 'package:mg_common_game/systems/progression/achievement_manager.dart';
+
+import '../core/localization/app_localizations.dart';
+import 'package:mg_common_game/mg_common_game.dart' hide TutorialOverlay;
+import 'package:mg_common_game/core/ui/theme/app_colors.dart';
+import 'package:mg_common_game/core/ui/theme/app_text_styles.dart';
+import 'package:mg_common_game/core/localization/localization.dart';
+import 'package:mg_common_game/core/ui/accessibility/accessibility_settings.dart';
+import 'package:mg_common_game/core/ui/screens/leaderboard_screen.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:flame/game.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:get_it/get_it.dart';
+import 'features/resources/resource_manager.dart';
+// import 'features/buildings/building_data.dart';
+import 'features/buildings/building_definition.dart';
+import 'features/buildings/building_instance.dart';
+import 'features/ui/construction_overlay.dart';
+import 'features/ui/tutorial_overlay.dart';
+import 'game/kingdom_game.dart';
+import 'screens/gacha_screen.dart';
+import 'screens/daily_quest_screen.dart';
+import 'screens/achievement_screen.dart';
+import 'screens/battlepass_screen.dart';
+import 'screens/collection_screen.dart';
+// // import 'game/tutorial_config.dart'; // TutorialManager not available
+// import 'game/balancing_config.dart'; // BalancingManager not available
+// import 'package:firebase_core/firebase_core.dart';
+// import 'firebase_options.dart';
+// import 'package:mg_common_game/systems/quests/daily_quest_v2.dart'; // Temporarily disabled
+// import 'package:mg_common_game/core/ui/screens/daily_quest_screen_v2.dart'; // Temporarily disabled
+// import 'package:mg_common_game/core/social/social_initializer.dart'; // Temporarily disabled
+// import 'package:mg_common_game/systems/tutorial/tutorial_manager.dart';
+// 
+// 
+void main() async {
+WidgetsFlutterBinding.ensureInitialized();
+// Initialize Firebase Remote Config
+// Initialize Firebase Core
+try {
+await Firebase.initializeApp(
+options: DefaultFirebaseOptions.currentPlatform,
+);
+print('Firebase Core initialized successfully');
+} catch (e) {
+print('Failed to initialize Firebase Core: $e');
+}
+try {
+final remoteConfig = FirebaseRemoteConfig.instance;
+await remoteConfig.setDefaults({
+'feature_iap_enabled': true,
+'feature_new_ui_enabled': false,
+'feature_daily_rewards_enabled': true,
+'feature_tutorial_enabled': true,
+'min_app_version': '1.0.0',
+});
+await remoteConfig.fetchAndActivate();
+print('Remote Config initialized successfully');
+} catch (e) {
+print('Failed to initialize Remote Config: $e');
+}
+_setupDI();
+await GetIt.I<AudioManager>().initialize();
+// ── Tutorial & Balancing (v1.2.0 pilot) ─────────────────────
+if (!GetIt.I.isRegistered<TutorialManager>()) {
+final tutorialManager = TutorialManager();
+await tutorialManager.initialize();
+// Tutorial is started via startTutorial() method when needed
+GetIt.I.registerSingleton<TutorialManager>(tutorialManager);
+}
+// if (!GetIt.I.isRegistered<BalancingManager>()) { // Temporarily disabled
+//   GetIt.I.registerSingleton<BalancingManager>(
+//     BalancingManager(defaultConfig: kDefaultBalancingConfig),
+//   );
+// }
+// ── Q7 DI Fix: Missing Systems ──────────────────────────
+if (!GetIt.I.isRegistered<BattlePassManager>()) {
+GetIt.I.registerSingleton<BattlePassManager>(BattlePassManager());
+}
+if (!GetIt.I.isRegistered<GachaManager>()) {
+GetIt.I.registerSingleton<GachaManager>(GachaManager());
+}
+if (!GetIt.I.isRegistered<CollectionManager>()) {
+GetIt.I.registerSingleton<CollectionManager>(CollectionManager());
+}
+// if (!GetIt.I.isRegistered<GuildWarManager>()) { // Temporarily disabled
+//   GetIt.I.registerSingleton<GuildWarManager>(GuildWarManager());
+// }
+// if (!GetIt.I.isRegistered<TournamentManager>()) { // Temporarily disabled
+//   GetIt.I.registerSingleton<TournamentManager>(TournamentManager());
+// }
+// if (!GetIt.I.isRegistered<SeasonalContentManager>()) { // Temporarily disabled
+//   GetIt.I.registerSingleton<SeasonalContentManager>(SeasonalContentManager());
+// }
+// ── Social Systems Initialization ─────────────────────────────
+// await SocialInitializer.initialize( // Temporarily disabled
+//   playerId: 'player_' + DateTime.now().millisecondsSinceEpoch.toString(),
+//   playerName: 'Player',
+//   leaderboards: SocialInitializer.createStandardLeaderboards(
+//     gameId: 'mg_memory_game',
+//     gameName: 'Memory Game',
+//   ),
+//   enableFirebase: true,
+// );
+// logger.i('Social systems initialized.');
+runApp(
+MultiProvider(
+providers: [
+ChangeNotifierProvider(create: (_) => ResourceManager()),
+ChangeNotifierProvider.value(value: GetIt.I<CollectionManager>()),
+],
+child: const KingdomApp(),
+),
+);
+}
+Screen route names for retention UI navigation
+void _setupDI() {
+final di = GetIt.I;
+if (!di.isRegistered<AudioManager>()) {
+di.registerSingleton<AudioManager>(AudioManager());
+}
+if (!di.isRegistered<CollectionManager>()) {
+final collectionManager = CollectionManager();
+_registerCollections(collectionManager);
+di.registerSingleton<CollectionManager>(collectionManager);
+}
+if (!di.isRegistered<DailyQuestManager>()) {
+di.registerSingleton(DailyQuestManager());
+}
+if (!di.isRegistered<GachaManager>()) {
+di.registerSingleton(GachaManager());
+}
+if (!di.isRegistered<PrestigeManager>()) {
+final prestigeManager = PrestigeManager();
+di.registerSingleton(prestigeManager);
+_setupPrestige(prestigeManager);
+}
+if (!di.isRegistered<LoginRewardsManager>()) {
+di.registerSingleton(LoginRewardsManager());
+}
+if (!di.isRegistered<StreakManager>()) {
+di.registerSingleton(StreakManager());
+}
+if (!di.isRegistered<DailyChallengeManager>()) {
+di.registerSingleton(DailyChallengeManager());
+}
+if (!di.isRegistered<GuildWarManager>()) {
+di.registerSingleton(GuildWarManager());
+}
+if (!di.isRegistered<TournamentManager>()) {
+di.registerSingleton(TournamentManager());
+}
+if (!di.isRegistered<SeasonalContentManager>()) {
+di.registerSingleton(SeasonalContentManager());
+}
+_setupGacha();
+_registerDailyQuests();
+}
+void _registerCollections(CollectionManager manager) {
+manager.registerCollection(
+Collection(
+id: 'buildings_collection',
+name: 'Buildings',
+description: 'Core kingdom buildings',
+category: 'buildings',
+items: const [
+CollectionItem(
+id: 'building_castle',
+name: 'Castle',
+description: 'Main keep of the kingdom',
+rarity: CollectionRarity.legendary,
+metadata: {'type': 'castle'},
+),
+CollectionItem(
+id: 'building_lumber_mill',
+name: 'Lumber Mill',
+description: 'Produces wood resources',
+rarity: CollectionRarity.common,
+metadata: {'type': 'lumberMill'},
+),
+CollectionItem(
+id: 'building_stone_quarry',
+name: 'Stone Quarry',
+description: 'Produces stone resources',
+rarity: CollectionRarity.common,
+metadata: {'type': 'stoneQuarry'},
+),
+CollectionItem(
+id: 'building_house',
+name: 'House',
+description: 'Increases population capacity',
+rarity: CollectionRarity.common,
+metadata: {'type': 'house'},
+),
+],
+completionReward: const CollectionReward(
+type: RewardType.gold,
+amount: 1000,
+),
+),
+);
+manager.registerCollection(
+Collection(
+id: 'gacha_collection',
+name: 'Kingdom Gacha',
+description: 'Gacha reward collection',
+category: 'gacha',
+items: const [
+CollectionItem(
+id: 'ur_kingdom_001',
+name: 'Legendary Building',
+description: 'Top-tier building reward',
+rarity: CollectionRarity.legendary,
+metadata: {'gacha_rarity': 'UR'},
+),
+CollectionItem(
+id: 'ssr_kingdom_001',
+name: 'Heroic Building',
+description: 'High-tier building reward',
+rarity: CollectionRarity.epic,
+metadata: {'gacha_rarity': 'SSR'},
+),
+CollectionItem(
+id: 'sr_kingdom_001',
+name: 'Rare Building',
+description: 'Mid-tier building reward',
+rarity: CollectionRarity.rare,
+metadata: {'gacha_rarity': 'SR'},
+),
+CollectionItem(
+id: 'r_kingdom_001',
+name: 'Uncommon Building',
+description: 'Entry-tier building reward',
+rarity: CollectionRarity.uncommon,
+metadata: {'gacha_rarity': 'R'},
+),
+CollectionItem(
+id: 'n_kingdom_001',
+name: 'Common Building',
+description: 'Base-tier building reward',
+rarity: CollectionRarity.common,
+metadata: {'gacha_rarity': 'N'},
+),
+],
+completionReward: const CollectionReward(
+type: RewardType.gold,
+amount: 5000,
+),
+),
+);
+}
+class KingdomApp extends StatelessWidget {
+const KingdomApp({super.key});
+@override
+Widget build(BuildContext context) {
+return MGAccessibilityProvider(
+settings: MGAccessibilitySettings.defaults,
+onSettingsChanged: (settings) {
+// Settings updated
+},
+child: MaterialApp(
+title: 'Kingdom Rebuild',
+theme: ThemeData.dark().copyWith(
+scaffoldBackgroundColor: AppColors.background,
+primaryColor: AppColors.primary,
+colorScheme: ColorScheme.fromSeed(
+seedColor: AppColors.primary,
+brightness: Brightness.dark,
+),
+),
+home: const KingdomScreen(),
+routes: {
+'/gacha': (_) => const GachaScreen(),
+'/daily-quests': (_) => const DailyQuestScreen(),
+'/daily_quest': (_) => const DailyQuestScreen(),
+'/achievement': (_) => const AchievementScreen(),
+'/battlepass': (_) => const BattlePassScreen(),
+// '/daily-hub': (context) => DailyHubScreen(
+//   questManager: GetIt.I<DailyQuestManager>(),
+//   loginRewardsManager: GetIt.I<LoginRewardsManager>(),
+//   streakManager: GetIt.I<StreakManager>(),
+//   challengeManager: GetIt.I<DailyChallengeManager>(),
+//   accentColor: MGColors.primaryAction,
+//   onClose: () => Navigator.pop(context),
+// ),
+// '/collection': (context) => CollectionScreen(
+//   collectionManager: GetIt.I<CollectionManager>(),
+// ),
+// '/guild-war': (context) => GuildWarScreen(
+//   guildWarManager: GetIt.I<GuildWarManager>(),
+//   accentColor: MGColors.primaryAction,
+//   onClose: () => Navigator.pop(context),
+//   ),
+// '/tournament': (context) => TournamentScreen(
+//   tournamentManager: GetIt.I<TournamentManager>(),
+//   accentColor: MGColors.primaryAction,
+//   onClose: () => Navigator.pop(context),
+//   ),
+// '/seasonal-event': (context) => SeasonalEventScreen(
+//   seasonalContentManager: GetIt.I<SeasonalContentManager>(),
+//   accentColor: MGColors.primaryAction,
+//   onClose: () => Navigator.pop(context),
+//   ),
+// '/friends': (context) => FriendsScreen(
+//   title: 'FRIENDS',
+//   onClose: () => Navigator.pop(context),
+//   accentColor: MGColors.primaryAction,
+// ),
+'/leaderboard': (context) => LeaderboardScreen(
+title: 'LEADERBOARD',
+leaderboardId: 'mg_match3_all_time',
+onClose: () => Navigator.pop(context),
+accentColor: MGColors.primaryAction,
+),
+},
+);
+}
+}
+class KingdomScreen extends StatefulWidget {
+const KingdomScreen({super.key});
+@override
+State<KingdomScreen> createState() => _KingdomScreenState();
+}
+class _KingdomScreenState extends State<KingdomScreen> {
+// We need to access the provider to pass it to the game instance
+// Or we can let the Game instance be creating inside build accessing context.
+@override
+Widget build(BuildContext context) {
+return Scaffold(
+backgroundColor: AppColors.background,
+body: Consumer<ResourceManager>(
+builder: (context, resourceManager, child) {
+return GameWidget(
+game: KingdomGame(resourceManager: resourceManager),
+overlayBuilderMap: {
+'HUD': (BuildContext context, KingdomGame game) {
+return KingdomHud(
+game: game,
+onGuildWar: () {
+Navigator.of(context).pushNamed('/guild-war');
+},
+onTournament: () {
+Navigator.of(context).pushNamed('/tournament');
+},
+onSeasonalEvent: () {
+Navigator.of(context).pushNamed('/seasonal-event');
+},
+);
+},
+'construction': (BuildContext context, KingdomGame game) {
+return ConstructionOverlay(
+game: game,
+resourceManager: resourceManager,
+onClose: () {
+game.overlays.remove('construction');
+game.overlays.add('HUD');
+},
+);
+},
+'tutorial': (BuildContext context, KingdomGame game) {
+return TutorialOverlay(
+onFinish: () {
+resourceManager.completeTutorial();
+game.overlays.remove('tutorial');
+},
+);
+},
+},
+initialActiveOverlays: [
+'HUD',
+if (!resourceManager.tutorialCompleted) 'tutorial',
+],
+);
+},
+),
+);
+}
+}
+class KingdomHud extends StatelessWidget {
+final KingdomGame game;
+final VoidCallback? onGuildWar;
+final VoidCallback? onTournament;
+final VoidCallback? onSeasonalEvent;
+const KingdomHud({
+super.key,
+required this.game,
+this.onGuildWar,
+this.onTournament,
+this.onSeasonalEvent,
+});
+@override
+// ... Inside KingdomHud
+Widget build(BuildContext context) {
+// Consume resource manager to rebuild HUD on change
+return Consumer<ResourceManager>(
+//       builder: (context, resources, child) {
+//         // Selection Logic
+//         final selectedId = resources.selectedBuildingId;
+//         final selectedBuilding = selectedId != null
+//             ? resources.buildings.cast<BuildingInstance?>().firstWhere(
+//                 (b) => b?.id == selectedId,
+//                 orElse: () => null,
+//               )
+: null;
+return SafeArea(
+child: Column(
+children: [
+// 1. Top Resource Bar
+Container(
+padding: const EdgeInsets.symmetric(
+vertical: 12,
+horizontal: 16,
+),
+margin: const EdgeInsets.all(8),
+decoration: BoxDecoration(
+color: AppColors.panel,
+borderRadius: BorderRadius.circular(16),
+border: Border.all(color: AppColors.primary),
+),
+child: Row(
+mainAxisAlignment: MainAxisAlignment.spaceAround,
+children: [
+_buildResourceItem(
+Icons.monetization_on,
+AppColors.secondary,
+resources.gold,
+),
+_buildResourceItem(
+Icons.forest,
+Colors.brown,
+resources.wood,
+),
+_buildResourceItem(
+Icons.landscape,
+MGColors.common,
+resources.stone,
+),
+],
+),
+),
+const Spacer(),
+// 2. Active Buttons (Floating) - Only if NOT selecting? Or always?
+// Hide Build button if selecting to avoid clutter? No, keep it.
+Padding(
+padding: const EdgeInsets.only(bottom: 20, right: 16),
+child: Row(
+mainAxisAlignment: MainAxisAlignment.end,
+children: [
+if (selectedBuilding ==
+null) // Hide controls when inspecting?
+FloatingActionButton.extended(
+heroTag: 'build_btn',
+onPressed: () {
+try {
+GetIt.I<AudioManager>().playSfx('sfx_click.wav');
+} catch (_) {}
+// Open Construction Overlay
+// Ideally we pass context or callback.
+// For now, hack: we know the 'construction' overlay is registered.
+// But we can't trigger it easily without GameRef.
+// Wait, in previous step I said I'd fix structure.
+// KingdomHud has field: final KingdomGame game;
+// So we CAN use game.overlays!
+// Step 1188 shows: class KingdomHud extends StatelessWidget { const KingdomHud({super.key}); ...
+// It lacks the `final KingdomGame game` field in the definition!
+// But line 74: KingdomHud(game: game) implies it is expected or failed.
+// Ah, line 74 in `build` passes `game`, but class definition (line 95) does NOT have it.
+// I must fix that too.
+// BUT, I can't simple fix constructor in THIS replace block easily if I don't target it.
+// I am targeting `build`.
+// I will assume `game` is available if I fix the class def in a separate edit or larger edit.
+// I'll make this edit assume `this.game` exists and I'll do a second edit to add the field.
+game.overlays.add('construction');
+game.overlays.remove('HUD');
+},
+icon: const Icon(Icons.construction),
+label: Text('ui_general_welcome_to_kingdom_rebuild'.tr),
+backgroundColor: AppColors.primary,
+),
+const SizedBox(width: 16),
+FloatingActionButton.extended(
+heroTag: 'tax_btn',
+onPressed: () {
+try {
+GetIt.I<AudioManager>().playSfx('sfx_coin.wav');
+} catch (_) {}
+resources.click();
+},
+icon: const Icon(Icons.touch_app),
+label: Text('ui_general_collect_tax'.tr),
+backgroundColor: AppColors.secondary,
+),
+],
+),
+),
+// 3. Bottom Panel (Selection or List)
+Container(
+height: 280, // Slightly taller
+decoration: const BoxDecoration(
+color: AppColors.surface,
+borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+boxShadow: [
+BoxShadow(
+color: Colors.black26,
+blurRadius: 10,
+offset: Offset(0, -5),
+),
+],
+),
+child: selectedBuilding != null
+? _buildInspector(context, resources, selectedBuilding)
+: _buildBuildingList(context, resources),
+),
+],
+),
+);
+},
+//     );
+//   }
+// 
+  Widget _buildInspector(
+    BuildContext context,
+    ResourceManager resources,
+    BuildingInstance b,
+  ) {
+    final canAfford = resources.canAfford(b.currentCost);
+    final isConstructing = b.isUnderConstruction;
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("Inspect: ${b.name}", style: AppTextStyles.header2),
+              IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => resources.selectBuilding(null),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                // Icon
+                CircleAvatar(
+                  radius: 30,
+                  backgroundColor: _getBuildingColor(b.type).withValues(alpha: 0.2),
+                  child: Icon(
+                    _getBuildingIcon(b.type),
+                    size: 30,
+                    color: _getBuildingColor(b.type),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text("Level ${b.level}", style: AppTextStyles.header1),
+                Text(b.definition.description, style: AppTextStyles.body),
+                const Divider(),
+                // Upgrade Btn
+                ElevatedButton(
+                  onPressed: !isConstructing && canAfford
+                      ? () {
+                          resources.upgradeBuilding(b.id);
+                          GetIt.I<AudioManager>().playSfx('sfx_build.wav');
+                        }
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 12,
+                    ),
+                  ),
+                  child: Text(
+                    isConstructing
+                        ? "Upgrading..."
+                        : "Upgrade (${b.currentCost.toInt()} G)",
+                  ),
+                ),
+                if (isConstructing)
+                  Text(
+                    "Time Left: ${b.constructionEndTime!.difference(DateTime.now()).inSeconds}s",
+                  ),
+
+                const SizedBox(height: 10),
+
+                // Workers
+                if (b.maxWorkers > 0)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.remove),
+                        onPressed: b.workers > 0
+                            ? () => resources.removeWorker(b.id)
+                            : null,
+                      ),
+                      Text('ui_general_workers_bworkers_bmaxworkers'.tr),
+                      IconButton(
+                        icon: const Icon(Icons.add),
+                        onPressed:
+                            (resources.availableWorkers > 0 &&
+                                b.workers < b.maxWorkers)
+                            ? () => resources.assignWorker(b.id)
+                            : null,
+                      ),
+                    ],
+                  ),
+
+                const Divider(),
+                // Demolish
+                TextButton.icon(
+                  icon: const Icon(Icons.delete, color: MGColors.error),
+                  label: const Text(
+                    "Demolish (50% Refund)",
+                    style: TextStyle(color: MGColors.error),
+                  ),
+                  onPressed: () {
+                    resources.removeBuilding(b.id);
+                    resources.selectBuilding(null);
+                    GetIt.I<AudioManager>().playSfx(
+                      'sfx_error.wav',
+                    ); // Destructive sound?
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBuildingList(BuildContext context, ResourceManager resources) {
+    return Column(
+      children: [
+        const Padding(
+          padding: EdgeInsets.all(12.0),
+          child: Text("Kingdom Overview", style: AppTextStyles.header2),
+        ),
+        Expanded(
+          child: ListView.builder(
+            itemCount: resources.buildings.length,
+            itemBuilder: (context, index) {
+              final b = resources.buildings[index];
+              // Just simple list, tap to select
+              return ListTile(
+                leading: Icon(
+                  _getBuildingIcon(b.type),
+                  color: _getBuildingColor(b.type),
+                ),
+                title: Text(b.name),
+                subtitle: Text('progress_lvblevel'.tr),
+                onTap: () {
+                  resources.selectBuilding(b.id);
+                },
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildResourceItem(
+    IconData icon,
+    Color color,
+    double amount, {
+    bool isInt = false,
+  }) {
+    return Row(
+      children: [
+        Icon(icon, color: color, size: 24),
+        const SizedBox(width: 8),
+        Text(
+          isInt
+              ? amount.toInt().toString()
+              : amount
+                    .toInt()
+                    .toString(), // Helper is same for now as amount is floor?
+          style: AppTextStyles.header2.copyWith(
+            color: AppColors.textHighEmphasis,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Color _getBuildingColor(BuildingType type) {
+    switch (type) {
+      case BuildingType.castle:
+        return MGColors.common;
+      case BuildingType.lumberMill:
+        return Colors.brown;
+      case BuildingType.stoneQuarry:
+        return Colors.blueGrey;
+      case BuildingType.house:
+        return Colors.orangeAccent;
+    }
+  }
+
+  IconData _getBuildingIcon(BuildingType type) {
+    switch (type) {
+      case BuildingType.castle:
+        return Icons.security;
+      case BuildingType.lumberMill:
+        return Icons.forest;
+      case BuildingType.stoneQuarry:
+        return Icons.landscape;
+      case BuildingType.house:
+        return Icons.maps_home_work;
+    }
+  }
+}
+
+
+void _registerDailyQuests() {
+  final dailyQuest = GetIt.I<DailyQuestManager>();
+
+  dailyQuest.registerQuest(DailyQuest(
+    id: 'build_cards',
+    title: '카드 덱 구성',
+    description: '카드 20장 수집',
+    targetValue: 20,
+    goldReward: 500,
+    xpReward: 10,
+  ));
+
+  dailyQuest.registerQuest(DailyQuest(
+    id: 'win_battles',
+    title: '전투 승리',
+    description: '배틀 3회 승리',
+    targetValue: 3,
+    goldReward: 300,
+    xpReward: 5,
+  ));
+
+  dailyQuest.registerQuest(DailyQuest(
+    id: 'upgrade_deck',
+    title: '덱 업그레이드',
+    description: '카드 5개 강화',
+    targetValue: 5,
+    goldReward: 200,
+    xpReward: 3,
+  ));
+}
+
+
+void _setupGacha() {
+  final gacha = GetIt.I<GachaManager>();
+
+  gacha.registerPool(GachaPool(
+    id: 'standard_pool',
+    nameKr: '스탠다드 뽑기',
+    items: [
+      // N (50%)
+      ...List.generate(20, (i) => GachaItem(
+        id: 'n_item_$i',
+        nameKr: '일반 아이템 $i',
+        rarity: GachaRarity.normal,
+      )),
+
+      // R (35%)
+      ...List.generate(10, (i) => GachaItem(
+        id: 'r_item_$i',
+        nameKr: '레어 아이템 $i',
+        rarity: GachaRarity.rare,
+      )),
+
+      // SR (12%)
+      ...List.generate(5, (i) => GachaItem(
+        id: 'sr_item_$i',
+        nameKr: '슈퍼레어 아이템 $i',
+        rarity: GachaRarity.superRare,
+      )),
+
+      // SSR (2.7%)
+      GachaItem(
+        id: 'ssr_item_1',
+        nameKr: '울트라레어 아이템 1',
+        rarity: GachaRarity.ultraRare,
+      ),
+
+      // UR (0.3%)
+      GachaItem(
+        id: 'ur_item_1',
+        nameKr: '레전더리 아이템 1',
+        rarity: GachaRarity.legendary,
+      ),
+    ],
+  ));
+}
+
+void _setupPrestige(PrestigeManager manager) {
+  // ── Prestige Upgrades (idle game defaults) ──────────────────
+  // Five core upgrades for idle games
+  manager.registerPrestigeUpgrade(PrestigeUpgrade(
+    id: 'gold_multiplier',
+    name: '골드 배수',
+    description: '골드 획득량 +10%',
+    maxLevel: 50,
+    costPerLevel: 1,
+    bonusPerLevel: 0.1,
+  ));
+
+  manager.registerPrestigeUpgrade(PrestigeUpgrade(
+    id: 'xp_boost',
+    name: 'XP 부스트',
+    description: 'XP 획득량 +15%',
+    maxLevel: 40,
+    costPerLevel: 2,
+    bonusPerLevel: 0.15,
+  ));
+
+  manager.registerPrestigeUpgrade(PrestigeUpgrade(
+    id: 'production_speed',
+    name: '생산 속도',
+    description: '생산 속도 +20%',
+    maxLevel: 30,
+    costPerLevel: 2,
+    bonusPerLevel: 0.2,
+  ));
+
+  manager.registerPrestigeUpgrade(PrestigeUpgrade(
+    id: 'starting_resources',
+    name: '초기 자원',
+    description: '초기 자원 +5%',
+    maxLevel: 60,
+    costPerLevel: 1,
+    bonusPerLevel: 0.05,
+  ));
+
+  manager.registerPrestigeUpgrade(PrestigeUpgrade(
+    id: 'offline_income',
+    name: '오프라인 수익',
+    description: '오프라인 수익 +20%',
+    maxLevel: 30,
+    costPerLevel: 3,
+    bonusPerLevel: 0.2,
+  ));
+
+  // ── Prestige Reset Callbacks ────────────────────────────────
+  // TODO: Add game-specific reset callbacks:
+  // manager.registerResetCallback(() {
+  //   if (GetIt.I.isRegistered<ProgressionManager>()) {
+  //     GetIt.I<ProgressionManager>().reset();
+  //   }
+  //   if (GetIt.I.isRegistered<UpgradeManager>()) {
+  //     GetIt.I<UpgradeManager>().reset();
+  //   }
+  // });
+}
