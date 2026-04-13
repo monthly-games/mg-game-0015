@@ -1,4 +1,5 @@
-import 'package:mg_common_game/core/assets/asset_types.dart';
+import '../../core/localization/app_localizations.dart';
+// import 'package:mg_common_game/core/assets/asset_types.dart'; // Temporarily disabled - module doesn't exist yet
 
 /// Spine 통합 플래그. `--dart-define=SPINE_ENABLED=true`로 활성화.
 const kSpineEnabled = bool.fromEnvironment(
@@ -8,36 +9,36 @@ const kSpineEnabled = bool.fromEnvironment(
 
 // ── King ─────────────────────────────────────────────────────
 
-const kKingMeta = SpineAssetMeta(
-  key: 'king',
-  path: 'spine/characters/king',
-  atlasPath: 'assets/spine/characters/king/king.atlas',
-  skeletonPath: 'assets/spine/characters/king/king.json',
-  animations: ['idle', 'walk', 'attack', 'hit'],
-  defaultAnimation: 'idle',
-  defaultMix: 0.2,
-);
+// const kKingMeta = SpineAssetMeta(
+//   key: 'king',
+//   path: 'spine/characters/king',
+//   atlasPath: 'assets/spine/characters/king/king.atlas',
+//   skeletonPath: 'assets/spine/characters/king/king.json',
+//   animations: ['idle', 'walk', 'attack', 'hit'],
+//   defaultAnimation: 'idle',
+//   defaultMix: 0.2,
+// );
 
 // ── Builder ──────────────────────────────────────────────────
 
-const kBuilderMeta = SpineAssetMeta(
-  key: 'builder',
-  path: 'spine/characters/builder',
-  atlasPath: 'assets/spine/characters/builder/builder.atlas',
-  skeletonPath: 'assets/spine/characters/builder/builder.json',
-  animations: ['idle', 'walk', 'attack', 'hit'],
-  defaultAnimation: 'idle',
-  defaultMix: 0.2,
-);
+// const kBuilderMeta = SpineAssetMeta(
+//   key: 'builder',
+//   path: 'spine/characters/builder',
+//   atlasPath: 'assets/spine/characters/builder/builder.atlas',
+//   skeletonPath: 'assets/spine/characters/builder/builder.json',
+//   animations: ['idle', 'walk', 'attack', 'hit'],
+//   defaultAnimation: 'idle',
+//   defaultMix: 0.2,
+// );
 
 // ── Soldier ──────────────────────────────────────────────────
 
-const kSoldierMeta = SpineAssetMeta(
-  key: 'soldier',
-  path: 'spine/characters/soldier',
-  atlasPath: 'assets/spine/characters/soldier/soldier.atlas',
-  skeletonPath: 'assets/spine/characters/soldier/soldier.json',
-  animations: ['idle', 'walk', 'attack', 'hit'],
-  defaultAnimation: 'idle',
-  defaultMix: 0.2,
-);
+// const kSoldierMeta = SpineAssetMeta(
+//   key: 'soldier',
+//   path: 'spine/characters/soldier',
+//   atlasPath: 'assets/spine/characters/soldier/soldier.atlas',
+//   skeletonPath: 'assets/spine/characters/soldier/soldier.json',
+//   animations: ['idle', 'walk', 'attack', 'hit'],
+//   defaultAnimation: 'idle',
+//   defaultMix: 0.2,
+// );

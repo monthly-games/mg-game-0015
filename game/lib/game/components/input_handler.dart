@@ -1,3 +1,4 @@
+import '../../core/localization/app_localizations.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:get_it/get_it.dart';

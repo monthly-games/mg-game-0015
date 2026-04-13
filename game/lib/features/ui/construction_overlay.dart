@@ -1,9 +1,12 @@
+import '../../../../core/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 import '../../game/kingdom_game.dart';
 import '../resources/resource_manager.dart';
+import 'package:mg_common_game/core/localization/localization.dart';
 import 'package:mg_common_game/core/ui/theme/app_colors.dart';
 import 'package:mg_common_game/core/ui/theme/app_text_styles.dart';
 import 'package:mg_common_game/core/ui/theme/mg_colors.dart';
+
 
 class ConstructionOverlay extends StatelessWidget {
   final KingdomGame game;
@@ -82,7 +85,7 @@ class ConstructionOverlay extends StatelessWidget {
                                   onClose(); // Close overlay to allow placement
                                 }
                               : null,
-                          child: const Text("Select"),
+                          child: Text('ui_general_select_stage'.tr),
                         ),
                       ],
                     ),

@@ -1,15 +1,14 @@
-import 'package:flame/game.dart';
-import 'package:flutter/material.dart';
-import 'package:mg_common_game/systems/gacha/gacha_pool.dart';
-import 'package:mg_common_game/systems/gacha/gacha_manager.dart';
-import 'package:mg_common_game/systems/quests/daily_quest.dart';
-import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
-import 'package:get_it/get_it.dart';
-import 'package:mg_common_game/core/audio/audio_manager.dart';
+import 'package:mg_common_game/mg_common_game.dart' hide TutorialOverlay;
 import 'package:mg_common_game/core/ui/theme/app_colors.dart';
 import 'package:mg_common_game/core/ui/theme/app_text_styles.dart';
-import 'package:mg_common_game/systems/systems.dart';
+import 'package:mg_common_game/core/localization/localization.dart';
+import 'package:mg_common_game/core/ui/accessibility/accessibility_settings.dart';
+import 'package:mg_common_game/core/ui/screens/leaderboard_screen.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:flame/game.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:get_it/get_it.dart';
 import 'features/resources/resource_manager.dart';
 // import 'features/buildings/building_data.dart';
 import 'features/buildings/building_definition.dart';
@@ -17,294 +16,415 @@ import 'features/buildings/building_instance.dart';
 import 'features/ui/construction_overlay.dart';
 import 'features/ui/tutorial_overlay.dart';
 import 'game/kingdom_game.dart';
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  _setupDI();
-  await GetIt.I<AudioManager>().initialize();
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => ResourceManager()),
-        ChangeNotifierProvider.value(value: GetIt.I<CollectionManager>()),
-      ],
-      child: const KingdomApp(),
-    ),
-  );
-}
-
-void _setupDI() {
-  if (!GetIt.I.isRegistered<AudioManager>()) {
-    GetIt.I.registerSingleton<AudioManager>(AudioManager());
-  }
-  if (!GetIt.I.isRegistered<CollectionManager>()) {
-    final collectionManager = CollectionManager();
-    _registerCollections(collectionManager);
-    GetIt.I.registerSingleton<CollectionManager>(collectionManager);
-  // DailyQuest 시스템
-  GetIt.I.registerSingleton(DailyQuestManager());
-  // Gacha 시스템
-  GetIt.I.registerSingleton(GachaManager());
-  _setupGacha();
-  _registerDailyQuests();
-  }
-}
-
-void _registerCollections(CollectionManager manager) {
-  // Register buildings collection
-  manager.registerCollection(
-    'buildings_collection',
-    [
-      CollectibleItem(
-        id: 'building_castle',
-        name: 'Castle',
-        rarity: CollectibleRarity.legendary,
-        metadata: {'type': 'castle'},
-      ),
-      CollectibleItem(
-        id: 'building_lumber_mill',
-        name: 'Lumber Mill',
-        rarity: CollectibleRarity.common,
-        metadata: {'type': 'lumberMill'},
-      ),
-      CollectibleItem(
-        id: 'building_stone_quarry',
-        name: 'Stone Quarry',
-        rarity: CollectibleRarity.common,
-        metadata: {'type': 'stoneQuarry'},
-      ),
-      CollectibleItem(
-        id: 'building_house',
-        name: 'House',
-        rarity: CollectibleRarity.common,
-        metadata: {'type': 'house'},
-      ),
-    ],
-  );
-
-  // Register gacha collection (16 items)
-  manager.registerCollection(
-    'gacha_collection',
-    [
-      // UR → mythic (2 items)
-      CollectibleItem(
-        id: 'ur_kingdom_001',
-        name: '전설의 Building',
-        rarity: CollectibleRarity.mythic,
-        metadata: {'gacha_rarity': 'UR'},
-      ),
-      CollectibleItem(
-        id: 'ur_kingdom_002',
-        name: '신화의 Building',
-        rarity: CollectibleRarity.mythic,
-        metadata: {'gacha_rarity': 'UR'},
-      ),
-      // SSR → legendary (3 items)
-      CollectibleItem(
-        id: 'ssr_kingdom_001',
-        name: '영웅의 Building',
-        rarity: CollectibleRarity.legendary,
-        metadata: {'gacha_rarity': 'SSR'},
-      ),
-      CollectibleItem(
-        id: 'ssr_kingdom_002',
-        name: '고대의 Building',
-        rarity: CollectibleRarity.legendary,
-        metadata: {'gacha_rarity': 'SSR'},
-      ),
-      CollectibleItem(
-        id: 'ssr_kingdom_003',
-        name: '황금의 Building',
-        rarity: CollectibleRarity.legendary,
-        metadata: {'gacha_rarity': 'SSR'},
-      ),
-      // SR → epic (4 items)
-      CollectibleItem(
-        id: 'sr_kingdom_001',
-        name: '희귀한 Building A',
-        rarity: CollectibleRarity.epic,
-        metadata: {'gacha_rarity': 'SR'},
-      ),
-      CollectibleItem(
-        id: 'sr_kingdom_002',
-        name: '희귀한 Building B',
-        rarity: CollectibleRarity.epic,
-        metadata: {'gacha_rarity': 'SR'},
-      ),
-      CollectibleItem(
-        id: 'sr_kingdom_003',
-        name: '희귀한 Building C',
-        rarity: CollectibleRarity.epic,
-        metadata: {'gacha_rarity': 'SR'},
-      ),
-      CollectibleItem(
-        id: 'sr_kingdom_004',
-        name: '희귀한 Building D',
-        rarity: CollectibleRarity.epic,
-        metadata: {'gacha_rarity': 'SR'},
-      ),
-      // R → rare (5 items)
-      CollectibleItem(
-        id: 'r_kingdom_001',
-        name: '우수한 Building A',
-        rarity: CollectibleRarity.rare,
-        metadata: {'gacha_rarity': 'R'},
-      ),
-      CollectibleItem(
-        id: 'r_kingdom_002',
-        name: '우수한 Building B',
-        rarity: CollectibleRarity.rare,
-        metadata: {'gacha_rarity': 'R'},
-      ),
-      CollectibleItem(
-        id: 'r_kingdom_003',
-        name: '우수한 Building C',
-        rarity: CollectibleRarity.rare,
-        metadata: {'gacha_rarity': 'R'},
-      ),
-      CollectibleItem(
-        id: 'r_kingdom_004',
-        name: '우수한 Building D',
-        rarity: CollectibleRarity.rare,
-        metadata: {'gacha_rarity': 'R'},
-      ),
-      CollectibleItem(
-        id: 'r_kingdom_005',
-        name: '우수한 Building E',
-        rarity: CollectibleRarity.rare,
-        metadata: {'gacha_rarity': 'R'},
-      ),
-      // N → common (6 items)
-      CollectibleItem(
-        id: 'n_kingdom_001',
-        name: '일반 Building A',
-        rarity: CollectibleRarity.common,
-        metadata: {'gacha_rarity': 'N'},
-      ),
-      CollectibleItem(
-        id: 'n_kingdom_002',
-        name: '일반 Building B',
-        rarity: CollectibleRarity.common,
-        metadata: {'gacha_rarity': 'N'},
-      ),
-      CollectibleItem(
-        id: 'n_kingdom_003',
-        name: '일반 Building C',
-        rarity: CollectibleRarity.common,
-        metadata: {'gacha_rarity': 'N'},
-      ),
-      CollectibleItem(
-        id: 'n_kingdom_004',
-        name: '일반 Building D',
-        rarity: CollectibleRarity.common,
-        metadata: {'gacha_rarity': 'N'},
-      ),
-      CollectibleItem(
-        id: 'n_kingdom_005',
-        name: '일반 Building E',
-        rarity: CollectibleRarity.common,
-        metadata: {'gacha_rarity': 'N'},
-      ),
-      CollectibleItem(
-        id: 'n_kingdom_006',
-        name: '일반 Building F',
-        rarity: CollectibleRarity.common,
-        metadata: {'gacha_rarity': 'N'},
-      ),
-    ],
-  );
-}
-
-class KingdomApp extends StatelessWidget {
-  const KingdomApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Kingdom Rebuild',
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: AppColors.background,
-        primaryColor: AppColors.primary,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.primary,
-          brightness: Brightness.dark,
-        ),
-      ),
-      home: const KingdomScreen(),
-    );
-  }
-}
-
-class KingdomScreen extends StatefulWidget {
-  const KingdomScreen({super.key});
-
-  @override
-  State<KingdomScreen> createState() => _KingdomScreenState();
-}
-
-class _KingdomScreenState extends State<KingdomScreen> {
-  // We need to access the provider to pass it to the game instance
-  // Or we can let the Game instance be creating inside build accessing context.
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: Consumer<ResourceManager>(
-        builder: (context, resourceManager, child) {
-          return GameWidget(
-            game: KingdomGame(resourceManager: resourceManager),
-            overlayBuilderMap: {
-              'HUD': (BuildContext context, KingdomGame game) {
-                return KingdomHud(game: game);
-              },
-              'construction': (BuildContext context, KingdomGame game) {
-                return ConstructionOverlay(
-                  game: game,
-                  resourceManager: resourceManager,
-                  onClose: () {
-                    game.overlays.remove('construction');
-                    game.overlays.add('HUD');
-                  },
-                );
-              },
-              'tutorial': (BuildContext context, KingdomGame game) {
-                return TutorialOverlay(
-                  onFinish: () {
-                    resourceManager.completeTutorial();
-                    game.overlays.remove('tutorial');
-                  },
-                );
-              },
-            },
-            initialActiveOverlays: [
-              'HUD',
-              if (!resourceManager.tutorialCompleted) 'tutorial',
-            ],
-          );
-        },
-      ),
-    );
-  }
-}
-
-class KingdomHud extends StatelessWidget {
-  final KingdomGame game;
-  const KingdomHud({super.key, required this.game});
-
-  @override
-  // ... Inside KingdomHud
-  Widget build(BuildContext context) {
-    // Consume resource manager to rebuild HUD on change
-    return Consumer<ResourceManager>(
-      builder: (context, resources, child) {
-        // Selection Logic
-        final selectedId = resources.selectedBuildingId;
-        final selectedBuilding = selectedId != null
-            ? resources.buildings.cast<BuildingInstance?>().firstWhere(
-                (b) => b?.id == selectedId,
-                orElse: () => null,
-              )
+import 'screens/gacha_screen.dart';
+import 'screens/daily_quest_screen.dart';
+import 'screens/achievement_screen.dart';
+import 'screens/battlepass_screen.dart';
+import 'screens/collection_screen.dart';
+// // import 'game/tutorial_config.dart'; // TutorialManager not available
+// import 'game/balancing_config.dart'; // BalancingManager not available
+// import 'package:firebase_core/firebase_core.dart';
+// import 'firebase_options.dart';
+// import 'package:mg_common_game/systems/quests/daily_quest_v2.dart'; // Temporarily disabled
+// import 'package:mg_common_game/core/ui/screens/daily_quest_screen_v2.dart'; // Temporarily disabled
+// import 'package:mg_common_game/core/social/social_initializer.dart'; // Temporarily disabled
+// import 'package:mg_common_game/systems/tutorial/tutorial_manager.dart';
+import 'package:mg_common_game/l10n/extensions.dart';
+// 
+// 
+// void main() async {
+//   WidgetsFlutterBinding.ensureInitialized();
+// 
+//   // Initialize Firebase Remote Config
+//         // Initialize Firebase Core
+//       try {
+//         await Firebase.initializeApp(
+//           options: DefaultFirebaseOptions.currentPlatform,
+//         );
+//         print('Firebase Core initialized successfully');
+//       } catch (e) {
+//         print('Failed to initialize Firebase Core: $e');
+//       }
+// 
+// try {
+//     final remoteConfig = FirebaseRemoteConfig.instance;
+//     await remoteConfig.setDefaults({
+//       'feature_iap_enabled': true,
+//       'feature_new_ui_enabled': false,
+//       'feature_daily_rewards_enabled': true,
+//       'feature_tutorial_enabled': true,
+//       'min_app_version': '1.0.0',
+//     });
+//     await remoteConfig.fetchAndActivate();
+//     print('Remote Config initialized successfully');
+//   } catch (e) {
+//     print('Failed to initialize Remote Config: $e');
+//   }
+// 
+//   _setupDI();
+//   await GetIt.I<AudioManager>().initialize();
+//   // ── Tutorial & Balancing (v1.2.0 pilot) ─────────────────────
+//   if (!GetIt.I.isRegistered<TutorialManager>()) {
+//     final tutorialManager = TutorialManager();
+//     await tutorialManager.initialize();
+//     // Tutorial is started via startTutorial() method when needed
+//     GetIt.I.registerSingleton<TutorialManager>(tutorialManager);
+//   }
+//   // if (!GetIt.I.isRegistered<BalancingManager>()) { // Temporarily disabled
+//   //   GetIt.I.registerSingleton<BalancingManager>(
+//   //     BalancingManager(defaultConfig: kDefaultBalancingConfig),
+//   //   );
+//   // }
+//   // ── Q7 DI Fix: Missing Systems ──────────────────────────
+//   if (!GetIt.I.isRegistered<BattlePassManager>()) {
+//     GetIt.I.registerSingleton<BattlePassManager>(BattlePassManager());
+//   }
+//   if (!GetIt.I.isRegistered<GachaManager>()) {
+//     GetIt.I.registerSingleton<GachaManager>(GachaManager());
+//   }
+//   if (!GetIt.I.isRegistered<CollectionManager>()) {
+//     GetIt.I.registerSingleton<CollectionManager>(CollectionManager());
+//   }
+//   // if (!GetIt.I.isRegistered<GuildWarManager>()) { // Temporarily disabled
+//   //   GetIt.I.registerSingleton<GuildWarManager>(GuildWarManager());
+//   // }
+//   // if (!GetIt.I.isRegistered<TournamentManager>()) { // Temporarily disabled
+//   //   GetIt.I.registerSingleton<TournamentManager>(TournamentManager());
+//   // }
+//   // if (!GetIt.I.isRegistered<SeasonalContentManager>()) { // Temporarily disabled
+//   //   GetIt.I.registerSingleton<SeasonalContentManager>(SeasonalContentManager());
+//   // }
+//       // ── Social Systems Initialization ─────────────────────────────
+//       // await SocialInitializer.initialize( // Temporarily disabled
+//       //   playerId: 'player_' + DateTime.now().millisecondsSinceEpoch.toString(),
+//       //   playerName: 'Player',
+//       //   leaderboards: SocialInitializer.createStandardLeaderboards(
+//       //     gameId: 'mg_memory_game',
+//       //     gameName: 'Memory Game',
+//       //   ),
+//       //   enableFirebase: true,
+//       // );
+//       // logger.i('Social systems initialized.');
+// 
+//   runApp(
+//     MultiProvider(
+//       providers: [
+//         ChangeNotifierProvider(create: (_) => ResourceManager()),
+//         ChangeNotifierProvider.value(value: GetIt.I<CollectionManager>()),
+//       ],
+//       child: const KingdomApp(),
+//     ),
+//   );
+// }
+// 
+// Screen route names for retention UI navigation
+// 
+// void _setupDI() {
+//   final di = GetIt.I;
+// 
+//   if (!di.isRegistered<AudioManager>()) {
+//     di.registerSingleton<AudioManager>(AudioManager());
+//   }
+// 
+//   if (!di.isRegistered<CollectionManager>()) {
+//     final collectionManager = CollectionManager();
+//     _registerCollections(collectionManager);
+//     di.registerSingleton<CollectionManager>(collectionManager);
+//   }
+// 
+//   if (!di.isRegistered<DailyQuestManager>()) {
+//     di.registerSingleton(DailyQuestManager());
+//   }
+// 
+//   if (!di.isRegistered<GachaManager>()) {
+//     di.registerSingleton(GachaManager());
+//   }
+// 
+//   if (!di.isRegistered<PrestigeManager>()) {
+//     final prestigeManager = PrestigeManager();
+//     di.registerSingleton(prestigeManager);
+//     _setupPrestige(prestigeManager);
+//   }
+// 
+//   if (!di.isRegistered<LoginRewardsManager>()) {
+//     di.registerSingleton(LoginRewardsManager());
+//   }
+//   if (!di.isRegistered<StreakManager>()) {
+//     di.registerSingleton(StreakManager());
+//   }
+//   if (!di.isRegistered<DailyChallengeManager>()) {
+//     di.registerSingleton(DailyChallengeManager());
+//   }
+// 
+//   if (!di.isRegistered<GuildWarManager>()) {
+//     di.registerSingleton(GuildWarManager());
+//   }
+//   if (!di.isRegistered<TournamentManager>()) {
+//     di.registerSingleton(TournamentManager());
+//   }
+//   if (!di.isRegistered<SeasonalContentManager>()) {
+//     di.registerSingleton(SeasonalContentManager());
+//   }
+// 
+//   _setupGacha();
+//   _registerDailyQuests();
+// }
+// 
+// void _registerCollections(CollectionManager manager) {
+//   manager.registerCollection(
+//     Collection(
+//       id: 'buildings_collection',
+//       name: 'Buildings',
+//       description: 'Core kingdom buildings',
+//       category: 'buildings',
+//       items: const [
+//         CollectionItem(
+//           id: 'building_castle',
+//           name: 'Castle',
+//           description: 'Main keep of the kingdom',
+//           rarity: CollectionRarity.legendary,
+//           metadata: {'type': 'castle'},
+//         ),
+//         CollectionItem(
+//           id: 'building_lumber_mill',
+//           name: 'Lumber Mill',
+//           description: 'Produces wood resources',
+//           rarity: CollectionRarity.common,
+//           metadata: {'type': 'lumberMill'},
+//         ),
+//         CollectionItem(
+//           id: 'building_stone_quarry',
+//           name: 'Stone Quarry',
+//           description: 'Produces stone resources',
+//           rarity: CollectionRarity.common,
+//           metadata: {'type': 'stoneQuarry'},
+//         ),
+//         CollectionItem(
+//           id: 'building_house',
+//           name: 'House',
+//           description: 'Increases population capacity',
+//           rarity: CollectionRarity.common,
+//           metadata: {'type': 'house'},
+//         ),
+//       ],
+//       completionReward: const CollectionReward(
+//         type: RewardType.gold,
+//         amount: 1000,
+//       ),
+//     ),
+//   );
+// 
+//   manager.registerCollection(
+//     Collection(
+//       id: 'gacha_collection',
+//       name: 'Kingdom Gacha',
+//       description: 'Gacha reward collection',
+//       category: 'gacha',
+//       items: const [
+//         CollectionItem(
+//           id: 'ur_kingdom_001',
+//           name: 'Legendary Building',
+//           description: 'Top-tier building reward',
+//           rarity: CollectionRarity.legendary,
+//           metadata: {'gacha_rarity': 'UR'},
+//         ),
+//         CollectionItem(
+//           id: 'ssr_kingdom_001',
+//           name: 'Heroic Building',
+//           description: 'High-tier building reward',
+//           rarity: CollectionRarity.epic,
+//           metadata: {'gacha_rarity': 'SSR'},
+//         ),
+//         CollectionItem(
+//           id: 'sr_kingdom_001',
+//           name: 'Rare Building',
+//           description: 'Mid-tier building reward',
+//           rarity: CollectionRarity.rare,
+//           metadata: {'gacha_rarity': 'SR'},
+//         ),
+//         CollectionItem(
+//           id: 'r_kingdom_001',
+//           name: 'Uncommon Building',
+//           description: 'Entry-tier building reward',
+//           rarity: CollectionRarity.uncommon,
+//           metadata: {'gacha_rarity': 'R'},
+//         ),
+//         CollectionItem(
+//           id: 'n_kingdom_001',
+//           name: 'Common Building',
+//           description: 'Base-tier building reward',
+//           rarity: CollectionRarity.common,
+//           metadata: {'gacha_rarity': 'N'},
+//         ),
+//       ],
+//       completionReward: const CollectionReward(
+//         type: RewardType.gold,
+//         amount: 5000,
+//       ),
+//     ),
+//   );
+// }
+// 
+// class KingdomApp extends StatelessWidget {
+//   const KingdomApp({super.key});
+// 
+//   @override
+//   Widget build(BuildContext context) {
+//     return MGAccessibilityProvider(
+//       settings: MGAccessibilitySettings.defaults,
+//       onSettingsChanged: (settings) {
+//         // Settings updated
+//       },
+//       child: MaterialApp(
+//       title: 'Kingdom Rebuild',
+//       theme: ThemeData.dark().copyWith(
+//         scaffoldBackgroundColor: AppColors.background,
+//         primaryColor: AppColors.primary,
+//         colorScheme: ColorScheme.fromSeed(
+//           seedColor: AppColors.primary,
+//           brightness: Brightness.dark,
+//         ),
+//       ),
+//       home: const KingdomScreen(),
+//       routes: {
+//         '/gacha': (_) => const GachaScreen(),
+//         '/daily-quests': (_) => const DailyQuestScreen(),
+//           '/daily_quest': (_) => const DailyQuestScreen(),
+//           '/achievement': (_) => const AchievementScreen(),
+//           '/battlepass': (_) => const BattlePassScreen(),
+//         // '/daily-hub': (context) => DailyHubScreen(
+//         //   questManager: GetIt.I<DailyQuestManager>(),
+//         //   loginRewardsManager: GetIt.I<LoginRewardsManager>(),
+//         //   streakManager: GetIt.I<StreakManager>(),
+//         //   challengeManager: GetIt.I<DailyChallengeManager>(),
+//         //   accentColor: MGColors.primaryAction,
+//         //   onClose: () => Navigator.pop(context),
+//         // ),
+//         // '/collection': (context) => CollectionScreen(
+//         //   collectionManager: GetIt.I<CollectionManager>(),
+//         // ),
+//         // '/guild-war': (context) => GuildWarScreen(
+//         //   guildWarManager: GetIt.I<GuildWarManager>(),
+//         //   accentColor: MGColors.primaryAction,
+//         //   onClose: () => Navigator.pop(context),
+//         //   ),
+//         // '/tournament': (context) => TournamentScreen(
+//         //   tournamentManager: GetIt.I<TournamentManager>(),
+//         //   accentColor: MGColors.primaryAction,
+//         //   onClose: () => Navigator.pop(context),
+//         //   ),
+//         // '/seasonal-event': (context) => SeasonalEventScreen(
+//         //   seasonalContentManager: GetIt.I<SeasonalContentManager>(),
+//         //   accentColor: MGColors.primaryAction,
+//         //   onClose: () => Navigator.pop(context),
+//         //   ),
+//         // '/friends': (context) => FriendsScreen(
+//         //   title: 'FRIENDS',
+//         //   onClose: () => Navigator.pop(context),
+//         //   accentColor: MGColors.primaryAction,
+//         // ),
+//         '/leaderboard': (context) => LeaderboardScreen(
+//           title: 'LEADERBOARD',
+//           leaderboardId: 'mg_match3_all_time',
+//           onClose: () => Navigator.pop(context),
+//           accentColor: MGColors.primaryAction,
+//         ),
+//       },
+//     );
+//   }
+// }
+// 
+// class KingdomScreen extends StatefulWidget {
+//   const KingdomScreen({super.key});
+// 
+//   @override
+//   State<KingdomScreen> createState() => _KingdomScreenState();
+// }
+// 
+// class _KingdomScreenState extends State<KingdomScreen> {
+//   // We need to access the provider to pass it to the game instance
+//   // Or we can let the Game instance be creating inside build accessing context.
+// 
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       backgroundColor: AppColors.background,
+//       body: Consumer<ResourceManager>(
+//         builder: (context, resourceManager, child) {
+//           return GameWidget(
+//             game: KingdomGame(resourceManager: resourceManager),
+//             overlayBuilderMap: {
+//               'HUD': (BuildContext context, KingdomGame game) {
+//                 return KingdomHud(
+//                   game: game,
+//                   onGuildWar: () {
+// Navigator.of(context).pushNamed('/guild-war');
+//                   },
+//                   onTournament: () {
+// Navigator.of(context).pushNamed('/tournament');
+//                   },
+//                   onSeasonalEvent: () {
+// Navigator.of(context).pushNamed('/seasonal-event');
+//                   },
+//                 );
+//               },
+//               'construction': (BuildContext context, KingdomGame game) {
+//                 return ConstructionOverlay(
+//                   game: game,
+//                   resourceManager: resourceManager,
+//                   onClose: () {
+//                     game.overlays.remove('construction');
+//                     game.overlays.add('HUD');
+//                   },
+//                 );
+//               },
+//               'tutorial': (BuildContext context, KingdomGame game) {
+//                 return TutorialOverlay(
+//                   onFinish: () {
+//                     resourceManager.completeTutorial();
+//                     game.overlays.remove('tutorial');
+//                   },
+//                 );
+//               },
+//             },
+//             initialActiveOverlays: [
+//               'HUD',
+//               if (!resourceManager.tutorialCompleted) 'tutorial',
+//             ],
+//           );
+//         },
+//       ),
+//     );
+//   }
+// }
+// 
+// class KingdomHud extends StatelessWidget {
+//   final KingdomGame game;
+//   final VoidCallback? onGuildWar;
+//   final VoidCallback? onTournament;
+//   final VoidCallback? onSeasonalEvent;
+// 
+//   const KingdomHud({
+//     super.key,
+//     required this.game,
+//     this.onGuildWar,
+//     this.onTournament,
+//     this.onSeasonalEvent,
+//   });
+// 
+//   @override
+//   // ... Inside KingdomHud
+//   Widget build(BuildContext context) {
+//     // Consume resource manager to rebuild HUD on change
+//     return Consumer<ResourceManager>(
+//       builder: (context, resources, child) {
+//         // Selection Logic
+//         final selectedId = resources.selectedBuildingId;
+//         final selectedBuilding = selectedId != null
+//             ? resources.buildings.cast<BuildingInstance?>().firstWhere(
+//                 (b) => b?.id == selectedId,
+//                 orElse: () => null,
+//               )
             : null;
 
         return SafeArea(
@@ -337,7 +457,7 @@ class KingdomHud extends StatelessWidget {
                     ),
                     _buildResourceItem(
                       Icons.landscape,
-                      Colors.grey,
+                      MGColors.common,
                       resources.stone,
                     ),
                   ],
@@ -383,7 +503,7 @@ class KingdomHud extends StatelessWidget {
                           game.overlays.remove('HUD');
                         },
                         icon: const Icon(Icons.construction),
-                        label: const Text("Build"),
+                        label: Text('ui_general_welcome_to_kingdom_rebuild'.tr),
                         backgroundColor: AppColors.primary,
                       ),
                     const SizedBox(width: 16),
@@ -396,7 +516,7 @@ class KingdomHud extends StatelessWidget {
                         resources.click();
                       },
                       icon: const Icon(Icons.touch_app),
-                      label: const Text("Collect Tax"),
+                      label: Text('ui_general_collect_tax'.tr),
                       backgroundColor: AppColors.secondary,
                     ),
                   ],
@@ -458,7 +578,7 @@ class KingdomHud extends StatelessWidget {
                 // Icon
                 CircleAvatar(
                   radius: 30,
-                  backgroundColor: _getBuildingColor(b.type).withOpacity(0.2),
+                  backgroundColor: _getBuildingColor(b.type).withValues(alpha: 0.2),
                   child: Icon(
                     _getBuildingIcon(b.type),
                     size: 30,
@@ -508,7 +628,7 @@ class KingdomHud extends StatelessWidget {
                             ? () => resources.removeWorker(b.id)
                             : null,
                       ),
-                      Text("Workers: ${b.workers} / ${b.maxWorkers}"),
+                      Text('ui_general_workers_bworkers_bmaxworkers'.tr),
                       IconButton(
                         icon: const Icon(Icons.add),
                         onPressed:
@@ -523,10 +643,10 @@ class KingdomHud extends StatelessWidget {
                 const Divider(),
                 // Demolish
                 TextButton.icon(
-                  icon: const Icon(Icons.delete, color: Colors.red),
+                  icon: const Icon(Icons.delete, color: MGColors.error),
                   label: const Text(
                     "Demolish (50% Refund)",
-                    style: TextStyle(color: Colors.red),
+                    style: TextStyle(color: MGColors.error),
                   ),
                   onPressed: () {
                     resources.removeBuilding(b.id);
@@ -563,7 +683,7 @@ class KingdomHud extends StatelessWidget {
                   color: _getBuildingColor(b.type),
                 ),
                 title: Text(b.name),
-                subtitle: Text("Lv.${b.level}"),
+                subtitle: Text('progress_lvblevel'.tr),
                 onTap: () {
                   resources.selectBuilding(b.id);
                 },
@@ -602,7 +722,7 @@ class KingdomHud extends StatelessWidget {
   Color _getBuildingColor(BuildingType type) {
     switch (type) {
       case BuildingType.castle:
-        return Colors.grey;
+        return MGColors.common;
       case BuildingType.lumberMill:
         return Colors.brown;
       case BuildingType.stoneQuarry:
@@ -702,4 +822,64 @@ void _setupGacha() {
       ),
     ],
   ));
+}
+
+void _setupPrestige(PrestigeManager manager) {
+  // ── Prestige Upgrades (idle game defaults) ──────────────────
+  // Five core upgrades for idle games
+  manager.registerPrestigeUpgrade(PrestigeUpgrade(
+    id: 'gold_multiplier',
+    name: '골드 배수',
+    description: '골드 획득량 +10%',
+    maxLevel: 50,
+    costPerLevel: 1,
+    bonusPerLevel: 0.1,
+  ));
+
+  manager.registerPrestigeUpgrade(PrestigeUpgrade(
+    id: 'xp_boost',
+    name: 'XP 부스트',
+    description: 'XP 획득량 +15%',
+    maxLevel: 40,
+    costPerLevel: 2,
+    bonusPerLevel: 0.15,
+  ));
+
+  manager.registerPrestigeUpgrade(PrestigeUpgrade(
+    id: 'production_speed',
+    name: '생산 속도',
+    description: '생산 속도 +20%',
+    maxLevel: 30,
+    costPerLevel: 2,
+    bonusPerLevel: 0.2,
+  ));
+
+  manager.registerPrestigeUpgrade(PrestigeUpgrade(
+    id: 'starting_resources',
+    name: '초기 자원',
+    description: '초기 자원 +5%',
+    maxLevel: 60,
+    costPerLevel: 1,
+    bonusPerLevel: 0.05,
+  ));
+
+  manager.registerPrestigeUpgrade(PrestigeUpgrade(
+    id: 'offline_income',
+    name: '오프라인 수익',
+    description: '오프라인 수익 +20%',
+    maxLevel: 30,
+    costPerLevel: 3,
+    bonusPerLevel: 0.2,
+  ));
+
+  // ── Prestige Reset Callbacks ────────────────────────────────
+  // TODO: Add game-specific reset callbacks:
+  // manager.registerResetCallback(() {
+  //   if (GetIt.I.isRegistered<ProgressionManager>()) {
+  //     GetIt.I<ProgressionManager>().reset();
+  //   }
+  //   if (GetIt.I.isRegistered<UpgradeManager>()) {
+  //     GetIt.I<UpgradeManager>().reset();
+  //   }
+  // });
 }

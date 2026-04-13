@@ -1,6 +1,7 @@
+import '../core/localization/app_localizations.dart';
 // ignore_for_file: depend_on_referenced_packages
 // ============================================================
-// Achievement Screen — MG-0015 Kingdom Rebuild Project
+// Achievement Screen -- MG-0015 Kingdom Rebuild Project
 // Genre: Crossgame / Raid / Event · Retention System UI
 //
 // Template: Based on MG-0024 canonical template.

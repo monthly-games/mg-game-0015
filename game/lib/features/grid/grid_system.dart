@@ -1,3 +1,4 @@
+import '../../../../core/localization/app_localizations.dart';
 import 'package:flame/extensions.dart';
 import 'dart:math';
 

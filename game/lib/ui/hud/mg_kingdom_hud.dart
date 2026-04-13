@@ -1,5 +1,7 @@
+import '../core/localization/app_localizations.dart';
 import 'package:mg_common_game/mg_common_game.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// MG-0015 Kingdom Rebuild HUD
 /// 왕국 재건 시뮬레이션 게임용 HUD - 자원, 인구, 행복도 표시
@@ -285,4 +287,34 @@ class MGKingdomHud extends StatelessWidget {
     }
     return value.toString();
   }
+
+
+  Widget _buildSpineCharacter() {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+      },
+      child: Container(
+        width: 60,
+        height: 60,
+        decoration: BoxDecoration(
+          color: Colors.red.withValues(alpha: 0.6),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.red.withAlpha(150), width: 2),
+        ),
+        child: const Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.person, size: 24, color: Colors.white),
+            SizedBox(height: 2),
+            Text(
+              'Racer',
+              style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
 }

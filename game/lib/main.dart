@@ -1,4 +1,13 @@
+import 'package:mg_common_game/systems/progression/achievement_manager.dart';
+
+import '../core/localization/app_localizations.dart';
 import 'package:mg_common_game/mg_common_game.dart' hide TutorialOverlay;
+import 'package:mg_common_game/core/ui/theme/app_colors.dart';
+import 'package:mg_common_game/core/ui/theme/app_text_styles.dart';
+import 'package:mg_common_game/core/localization/localization.dart';
+import 'package:mg_common_game/core/ui/accessibility/accessibility_settings.dart';
+import 'package:mg_common_game/core/ui/screens/leaderboard_screen.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -15,475 +24,503 @@ import 'screens/daily_quest_screen.dart';
 import 'screens/achievement_screen.dart';
 import 'screens/battlepass_screen.dart';
 import 'screens/collection_screen.dart';
-import 'game/tutorial_config.dart';
-import 'game/balancing_config.dart';
-
+// // import 'game/tutorial_config.dart'; // TutorialManager not available
+// import 'game/balancing_config.dart'; // BalancingManager not available
+// import 'package:firebase_core/firebase_core.dart';
+// import 'firebase_options.dart';
+// import 'package:mg_common_game/systems/quests/daily_quest_v2.dart'; // Temporarily disabled
+// import 'package:mg_common_game/core/ui/screens/daily_quest_screen_v2.dart'; // Temporarily disabled
+// import 'package:mg_common_game/core/social/social_initializer.dart'; // Temporarily disabled
+// import 'package:mg_common_game/systems/tutorial/tutorial_manager.dart';
+// 
+// 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  _setupDI();
-  await GetIt.I<AudioManager>().initialize();
-  // ── Tutorial & Balancing (v1.2.0 pilot) ─────────────────────
-  if (!GetIt.I.isRegistered<TutorialManager>()) {
-    final tutorialManager = TutorialManager();
-    await tutorialManager.initialize();
-    tutorialManager.registerTutorial(
-      kOnboardingTutorial.id,
-      kOnboardingTutorial.steps,
-    );
-    GetIt.I.registerSingleton<TutorialManager>(tutorialManager);
-  }
-  if (!GetIt.I.isRegistered<BalancingManager>()) {
-    GetIt.I.registerSingleton<BalancingManager>(
-      BalancingManager(defaultConfig: kDefaultBalancingConfig),
-    );
-  }
-  // ── Q7 DI Fix: Missing Systems ──────────────────────────
-  if (!GetIt.I.isRegistered<BattlePassManager>()) {
-    GetIt.I.registerSingleton<BattlePassManager>(BattlePassManager());
-  }
-  if (!GetIt.I.isRegistered<GachaManager>()) {
-    GetIt.I.registerSingleton<GachaManager>(GachaManager());
-  }
-  if (!GetIt.I.isRegistered<CollectionManager>()) {
-    GetIt.I.registerSingleton<CollectionManager>(CollectionManager());
-  }
-  if (!GetIt.I.isRegistered<GuildWarManager>()) {
-    GetIt.I.registerSingleton<GuildWarManager>(GuildWarManager());
-  }
-  if (!GetIt.I.isRegistered<TournamentManager>()) {
-    GetIt.I.registerSingleton<TournamentManager>(TournamentManager());
-  }
-  if (!GetIt.I.isRegistered<SeasonalContentManager>()) {
-    GetIt.I.registerSingleton<SeasonalContentManager>(SeasonalContentManager());
-  }
-
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => ResourceManager()),
-        ChangeNotifierProvider.value(value: GetIt.I<CollectionManager>()),
-      ],
-      child: const KingdomApp(),
-    ),
-  );
+WidgetsFlutterBinding.ensureInitialized();
+// Firebase initialization temporarily disabled
+// try {
+// await Firebase.initializeApp(
+// options: DefaultFirebaseOptions.currentPlatform,
+// );
+// print('Firebase Core initialized successfully');
+// } catch (e) {
+// print('Failed to initialize Firebase Core: $e');
+// }
+// try {
+// final remoteConfig = FirebaseRemoteConfig.instance;
+// await remoteConfig.setDefaults({
+// 'feature_iap_enabled': true,
+// 'feature_new_ui_enabled': false,
+// 'feature_daily_rewards_enabled': true,
+// 'feature_tutorial_enabled': true,
+// 'min_app_version': '1.0.0',
+// 'feature_battlepass': true,
+// 'feature_gacha': true,
+// });
+// await remoteConfig.fetchAndActivate();
+// print('Remote Config initialized successfully');
+// } catch (e) {
+// print('Failed to initialize Remote Config: $e');
+// }
+_setupDI();
+await GetIt.I<AudioManager>().initialize();
+// ── Tutorial & Balancing (v1.2.0 pilot) ─────────────────────
+if (!GetIt.I.isRegistered<TutorialManager>()) {
+final tutorialManager = TutorialManager();
+await tutorialManager.initialize();
+// Tutorial is started via startTutorial() method when needed
+GetIt.I.registerSingleton<TutorialManager>(tutorialManager);
 }
-
+// if (!GetIt.I.isRegistered<BalancingManager>()) { // Temporarily disabled
+//   GetIt.I.registerSingleton<BalancingManager>(
+//     BalancingManager(defaultConfig: kDefaultBalancingConfig),
+//   );
+// }
+// ── Q7 DI Fix: Missing Systems ──────────────────────────
+if (!GetIt.I.isRegistered<BattlePassManager>()) {
+GetIt.I.registerSingleton<BattlePassManager>(BattlePassManager());
+}
+if (!GetIt.I.isRegistered<GachaManager>()) {
+GetIt.I.registerSingleton<GachaManager>(GachaManager());
+}
+if (!GetIt.I.isRegistered<CollectionManager>()) {
+GetIt.I.registerSingleton<CollectionManager>(CollectionManager());
+}
+// if (!GetIt.I.isRegistered<GuildWarManager>()) { // Temporarily disabled
+//   GetIt.I.registerSingleton<GuildWarManager>(GuildWarManager());
+// }
+// if (!GetIt.I.isRegistered<TournamentManager>()) { // Temporarily disabled
+//   GetIt.I.registerSingleton<TournamentManager>(TournamentManager());
+// }
+// if (!GetIt.I.isRegistered<SeasonalContentManager>()) { // Temporarily disabled
+//   GetIt.I.registerSingleton<SeasonalContentManager>(SeasonalContentManager());
+// }
+// ── Social Systems Initialization ─────────────────────────────
+// await SocialInitializer.initialize( // Temporarily disabled
+//   playerId: 'player_' + DateTime.now().millisecondsSinceEpoch.toString(),
+//   playerName: 'Player',
+//   leaderboards: SocialInitializer.createStandardLeaderboards(
+//     gameId: 'mg_memory_game',
+//     gameName: 'Memory Game',
+//   ),
+//   enableFirebase: true,
+// );
+// logger.i('Social systems initialized.');
+runApp(
+MultiProvider(
+providers: [
+ChangeNotifierProvider(create: (_) => ResourceManager()),
+ChangeNotifierProvider.value(value: GetIt.I<CollectionManager>()),
+],
+child: const KingdomApp(),
+),
+);
+}
 // Screen route names for retention UI navigation
-
 void _setupDI() {
-  final di = GetIt.I;
-
-  if (!di.isRegistered<AudioManager>()) {
-    di.registerSingleton<AudioManager>(AudioManager());
-  }
-
-  if (!di.isRegistered<CollectionManager>()) {
-    final collectionManager = CollectionManager();
-    _registerCollections(collectionManager);
-    di.registerSingleton<CollectionManager>(collectionManager);
-  }
-
-  if (!di.isRegistered<DailyQuestManager>()) {
-    di.registerSingleton(DailyQuestManager());
-  }
-
-  if (!di.isRegistered<GachaManager>()) {
-    di.registerSingleton(GachaManager());
-  }
-
-  if (!di.isRegistered<PrestigeManager>()) {
-    final prestigeManager = PrestigeManager();
-    di.registerSingleton(prestigeManager);
-    _setupPrestige(prestigeManager);
-  }
-
-  if (!di.isRegistered<LoginRewardsManager>()) {
-    di.registerSingleton(LoginRewardsManager());
-  }
-  if (!di.isRegistered<StreakManager>()) {
-    di.registerSingleton(StreakManager());
-  }
-  if (!di.isRegistered<DailyChallengeManager>()) {
-    di.registerSingleton(DailyChallengeManager());
-  }
-
-  if (!di.isRegistered<GuildWarManager>()) {
-    di.registerSingleton(GuildWarManager());
-  }
-  if (!di.isRegistered<TournamentManager>()) {
-    di.registerSingleton(TournamentManager());
-  }
-  if (!di.isRegistered<SeasonalContentManager>()) {
-    di.registerSingleton(SeasonalContentManager());
-  }
-
-  _setupGacha();
-  _registerDailyQuests();
+final di = GetIt.I;
+if (!di.isRegistered<AudioManager>()) {
+di.registerSingleton<AudioManager>(AudioManager());
 }
-
+if (!di.isRegistered<CollectionManager>()) {
+final collectionManager = CollectionManager();
+_registerCollections(collectionManager);
+di.registerSingleton<CollectionManager>(collectionManager);
+}
+if (!di.isRegistered<DailyQuestManager>()) {
+di.registerSingleton(DailyQuestManager());
+}
+if (!di.isRegistered<GachaManager>()) {
+di.registerSingleton(GachaManager());
+}
+if (!di.isRegistered<PrestigeManager>()) {
+final prestigeManager = PrestigeManager();
+di.registerSingleton(prestigeManager);
+_setupPrestige(prestigeManager);
+}
+if (!di.isRegistered<LoginRewardsManager>()) {
+di.registerSingleton(LoginRewardsManager());
+}
+if (!di.isRegistered<StreakManager>()) {
+di.registerSingleton(StreakManager());
+}
+if (!di.isRegistered<DailyChallengeManager>()) {
+di.registerSingleton(DailyChallengeManager());
+}
+if (!di.isRegistered<GuildWarManager>()) {
+di.registerSingleton(GuildWarManager());
+}
+if (!di.isRegistered<TournamentManager>()) {
+di.registerSingleton(TournamentManager());
+}
+if (!di.isRegistered<SeasonalContentManager>()) {
+di.registerSingleton(SeasonalContentManager());
+}
+_setupGacha();
+_registerDailyQuests();
+}
 void _registerCollections(CollectionManager manager) {
-  manager.registerCollection(
-    Collection(
-      id: 'buildings_collection',
-      name: 'Buildings',
-      description: 'Core kingdom buildings',
-      category: 'buildings',
-      items: const [
-        CollectionItem(
-          id: 'building_castle',
-          name: 'Castle',
-          description: 'Main keep of the kingdom',
-          rarity: CollectionRarity.legendary,
-          metadata: {'type': 'castle'},
-        ),
-        CollectionItem(
-          id: 'building_lumber_mill',
-          name: 'Lumber Mill',
-          description: 'Produces wood resources',
-          rarity: CollectionRarity.common,
-          metadata: {'type': 'lumberMill'},
-        ),
-        CollectionItem(
-          id: 'building_stone_quarry',
-          name: 'Stone Quarry',
-          description: 'Produces stone resources',
-          rarity: CollectionRarity.common,
-          metadata: {'type': 'stoneQuarry'},
-        ),
-        CollectionItem(
-          id: 'building_house',
-          name: 'House',
-          description: 'Increases population capacity',
-          rarity: CollectionRarity.common,
-          metadata: {'type': 'house'},
-        ),
-      ],
-      completionReward: const CollectionReward(
-        type: RewardType.gold,
-        amount: 1000,
-      ),
-    ),
-  );
-
-  manager.registerCollection(
-    Collection(
-      id: 'gacha_collection',
-      name: 'Kingdom Gacha',
-      description: 'Gacha reward collection',
-      category: 'gacha',
-      items: const [
-        CollectionItem(
-          id: 'ur_kingdom_001',
-          name: 'Legendary Building',
-          description: 'Top-tier building reward',
-          rarity: CollectionRarity.legendary,
-          metadata: {'gacha_rarity': 'UR'},
-        ),
-        CollectionItem(
-          id: 'ssr_kingdom_001',
-          name: 'Heroic Building',
-          description: 'High-tier building reward',
-          rarity: CollectionRarity.epic,
-          metadata: {'gacha_rarity': 'SSR'},
-        ),
-        CollectionItem(
-          id: 'sr_kingdom_001',
-          name: 'Rare Building',
-          description: 'Mid-tier building reward',
-          rarity: CollectionRarity.rare,
-          metadata: {'gacha_rarity': 'SR'},
-        ),
-        CollectionItem(
-          id: 'r_kingdom_001',
-          name: 'Uncommon Building',
-          description: 'Entry-tier building reward',
-          rarity: CollectionRarity.uncommon,
-          metadata: {'gacha_rarity': 'R'},
-        ),
-        CollectionItem(
-          id: 'n_kingdom_001',
-          name: 'Common Building',
-          description: 'Base-tier building reward',
-          rarity: CollectionRarity.common,
-          metadata: {'gacha_rarity': 'N'},
-        ),
-      ],
-      completionReward: const CollectionReward(
-        type: RewardType.gold,
-        amount: 5000,
-      ),
-    ),
-  );
+manager.registerCollection(
+Collection(
+id: 'buildings_collection',
+name: 'Buildings',
+description: 'Core kingdom buildings',
+category: 'buildings',
+items: const [
+CollectionItem(
+id: 'building_castle',
+name: 'Castle',
+description: 'Main keep of the kingdom',
+rarity: CollectionRarity.legendary,
+metadata: {'type': 'castle'},
+),
+CollectionItem(
+id: 'building_lumber_mill',
+name: 'Lumber Mill',
+description: 'Produces wood resources',
+rarity: CollectionRarity.common,
+metadata: {'type': 'lumberMill'},
+),
+CollectionItem(
+id: 'building_stone_quarry',
+name: 'Stone Quarry',
+description: 'Produces stone resources',
+rarity: CollectionRarity.common,
+metadata: {'type': 'stoneQuarry'},
+),
+CollectionItem(
+id: 'building_house',
+name: 'House',
+description: 'Increases population capacity',
+rarity: CollectionRarity.common,
+metadata: {'type': 'house'},
+),
+],
+completionReward: const CollectionReward(
+type: RewardType.gold,
+amount: 1000,
+),
+),
+);
+manager.registerCollection(
+Collection(
+id: 'gacha_collection',
+name: 'Kingdom Gacha',
+description: 'Gacha reward collection',
+category: 'gacha',
+items: const [
+CollectionItem(
+id: 'ur_kingdom_001',
+name: 'Legendary Building',
+description: 'Top-tier building reward',
+rarity: CollectionRarity.legendary,
+metadata: {'gacha_rarity': 'UR'},
+),
+CollectionItem(
+id: 'ssr_kingdom_001',
+name: 'Heroic Building',
+description: 'High-tier building reward',
+rarity: CollectionRarity.epic,
+metadata: {'gacha_rarity': 'SSR'},
+),
+CollectionItem(
+id: 'sr_kingdom_001',
+name: 'Rare Building',
+description: 'Mid-tier building reward',
+rarity: CollectionRarity.rare,
+metadata: {'gacha_rarity': 'SR'},
+),
+CollectionItem(
+id: 'r_kingdom_001',
+name: 'Uncommon Building',
+description: 'Entry-tier building reward',
+rarity: CollectionRarity.uncommon,
+metadata: {'gacha_rarity': 'R'},
+),
+CollectionItem(
+id: 'n_kingdom_001',
+name: 'Common Building',
+description: 'Base-tier building reward',
+rarity: CollectionRarity.common,
+metadata: {'gacha_rarity': 'N'},
+),
+],
+completionReward: const CollectionReward(
+type: RewardType.gold,
+amount: 5000,
+),
+),
+);
 }
-
 class KingdomApp extends StatelessWidget {
-  const KingdomApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Kingdom Rebuild',
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: AppColors.background,
-        primaryColor: AppColors.primary,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.primary,
-          brightness: Brightness.dark,
-        ),
-      ),
-      home: const KingdomScreen(),
-      routes: {
-        '/gacha': (_) => const GachaScreen(),
-        '/daily-quests': (_) => const DailyQuestScreen(),
-          '/daily_quest': (_) => const DailyQuestScreen(),
-          '/achievement': (_) => const AchievementScreen(),
-          '/battlepass': (_) => const BattlePassScreen(),
-        '/daily-hub': (context) => DailyHubScreen(
-          questManager: GetIt.I<DailyQuestManager>(),
-          loginRewardsManager: GetIt.I<LoginRewardsManager>(),
-          streakManager: GetIt.I<StreakManager>(),
-          challengeManager: GetIt.I<DailyChallengeManager>(),
-          accentColor: MGColors.primaryAction,
-          onClose: () => Navigator.pop(context),
-        ),
-        
-        '/collection': (context) => CollectionScreen(
-          collectionManager: GetIt.I<CollectionManager>(),
-        ),
-        '/guild-war': (context) => GuildWarScreen(
-          guildWarManager: GetIt.I<GuildWarManager>(),
-          accentColor: MGColors.primaryAction,
-          onClose: () => Navigator.pop(context),
-          ),
-        '/tournament': (context) => TournamentScreen(
-          tournamentManager: GetIt.I<TournamentManager>(),
-          accentColor: MGColors.primaryAction,
-          onClose: () => Navigator.pop(context),
-          ),
-        '/seasonal-event': (context) => SeasonalEventScreen(
-          seasonalContentManager: GetIt.I<SeasonalContentManager>(),
-          accentColor: MGColors.primaryAction,
-          onClose: () => Navigator.pop(context),
-          ),
+const KingdomApp({super.key});
+@override
+Widget build(BuildContext context) {
+return MGAccessibilityProvider(
+settings: MGAccessibilitySettings.defaults,
+onSettingsChanged: (settings) {
+// Settings updated
 },
-    );
-  }
-}
+child: MaterialApp(
+title: 'Kingdom Rebuild',
+theme: ThemeData.dark().copyWith(
+scaffoldBackgroundColor: AppColors.background,
+primaryColor: AppColors.primary,
+colorScheme: ColorScheme.fromSeed(
+seedColor: AppColors.primary,
+brightness: Brightness.dark,
+),
+),
+home: const KingdomScreen(),
+routes: {
+'/gacha': (_) => const GachaScreen(),
+'/daily-quests': (_) => const DailyQuestScreen(),
+'/daily_quest': (_) => const DailyQuestScreen(),
+'/achievement': (_) => const AchievementScreen(),
+'/battlepass': (_) => const BattlePassScreen(),
+// '/daily-hub': (context) => DailyHubScreen(
+//   questManager: GetIt.I<DailyQuestManager>(),
+//   loginRewardsManager: GetIt.I<LoginRewardsManager>(),
+//   streakManager: GetIt.I<StreakManager>(),
+//   challengeManager: GetIt.I<DailyChallengeManager>(),
+//   accentColor: MGColors.primaryAction,
+//   onClose: () => Navigator.pop(context),
+// ),
+// '/collection': (context) => CollectionScreen(
+//   collectionManager: GetIt.I<CollectionManager>(),
+// ),
+// '/guild-war': (context) => GuildWarScreen(
+//   guildWarManager: GetIt.I<GuildWarManager>(),
+//   accentColor: MGColors.primaryAction,
+//   onClose: () => Navigator.pop(context),
+//   ),
+// '/tournament': (context) => TournamentScreen(
+//   tournamentManager: GetIt.I<TournamentManager>(),
+//   accentColor: MGColors.primaryAction,
+//   onClose: () => Navigator.pop(context),
+//   ),
+// '/seasonal-event': (context) => SeasonalEventScreen(
+//   seasonalContentManager: GetIt.I<SeasonalContentManager>(),
+//   accentColor: MGColors.primaryAction,
+//   onClose: () => Navigator.pop(context),
+//   ),
+// '/friends': (context) => FriendsScreen(
+//   title: 'FRIENDS',
+//   onClose: () => Navigator.pop(context),
+//   accentColor: MGColors.primaryAction,
+// ),
+'/leaderboard': (context) => LeaderboardScreen(
+title: 'LEADERBOARD',
+	scores: [],
+leaderboardId: 'mg_match3_all_time',
+onClose: () => Navigator.pop(context),
 
+),
+},
+);
+}
+}
 class KingdomScreen extends StatefulWidget {
-  const KingdomScreen({super.key});
-
-  @override
-  State<KingdomScreen> createState() => _KingdomScreenState();
+const KingdomScreen({super.key});
+@override
+State<KingdomScreen> createState() => _KingdomScreenState();
 }
-
 class _KingdomScreenState extends State<KingdomScreen> {
-  // We need to access the provider to pass it to the game instance
-  // Or we can let the Game instance be creating inside build accessing context.
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: Consumer<ResourceManager>(
-        builder: (context, resourceManager, child) {
-          return GameWidget(
-            game: KingdomGame(resourceManager: resourceManager),
-            overlayBuilderMap: {
-              'HUD': (BuildContext context, KingdomGame game) {
-                return KingdomHud(
-                  game: game,
-                  onGuildWar: () {
+// We need to access the provider to pass it to the game instance
+// Or we can let the Game instance be creating inside build accessing context.
+@override
+Widget build(BuildContext context) {
+return Scaffold(
+backgroundColor: AppColors.background,
+body: Consumer<ResourceManager>(
+builder: (context, resourceManager, child) {
+return GameWidget(
+game: KingdomGame(resourceManager: resourceManager),
+overlayBuilderMap: {
+'HUD': (BuildContext context, KingdomGame game) {
+return KingdomHud(
+game: game,
+onGuildWar: () {
 Navigator.of(context).pushNamed('/guild-war');
-                  },
-                  onTournament: () {
+},
+onTournament: () {
 Navigator.of(context).pushNamed('/tournament');
-                  },
-                  onSeasonalEvent: () {
+},
+onSeasonalEvent: () {
 Navigator.of(context).pushNamed('/seasonal-event');
-                  },
-                );
-              },
-              'construction': (BuildContext context, KingdomGame game) {
-                return ConstructionOverlay(
-                  game: game,
-                  resourceManager: resourceManager,
-                  onClose: () {
-                    game.overlays.remove('construction');
-                    game.overlays.add('HUD');
-                  },
-                );
-              },
-              'tutorial': (BuildContext context, KingdomGame game) {
-                return TutorialOverlay(
-                  onFinish: () {
-                    resourceManager.completeTutorial();
-                    game.overlays.remove('tutorial');
-                  },
-                );
-              },
-            },
-            initialActiveOverlays: [
-              'HUD',
-              if (!resourceManager.tutorialCompleted) 'tutorial',
-            ],
-          );
-        },
-      ),
-    );
-  }
+},
+);
+},
+'construction': (BuildContext context, KingdomGame game) {
+return ConstructionOverlay(
+game: game,
+resourceManager: resourceManager,
+onClose: () {
+game.overlays.remove('construction');
+game.overlays.add('HUD');
+},
+);
+},
+'tutorial': (BuildContext context, KingdomGame game) {
+return TutorialOverlay(
+onFinish: () {
+resourceManager.completeTutorial();
+game.overlays.remove('tutorial');
+},
+);
+},
+},
+initialActiveOverlays: [
+'HUD',
+if (!resourceManager.tutorialCompleted) 'tutorial',
+],
+);
+},
+),
+);
 }
-
+}
 class KingdomHud extends StatelessWidget {
-  final KingdomGame game;
-  final VoidCallback? onGuildWar;
-  final VoidCallback? onTournament;
-  final VoidCallback? onSeasonalEvent;
-
-  const KingdomHud({
-    super.key,
-    required this.game,
-    this.onGuildWar,
-    this.onTournament,
-    this.onSeasonalEvent,
-  });
-
-  @override
-  // ... Inside KingdomHud
-  Widget build(BuildContext context) {
-    // Consume resource manager to rebuild HUD on change
-    return Consumer<ResourceManager>(
-      builder: (context, resources, child) {
-        // Selection Logic
-        final selectedId = resources.selectedBuildingId;
-        final selectedBuilding = selectedId != null
-            ? resources.buildings.cast<BuildingInstance?>().firstWhere(
-                (b) => b?.id == selectedId,
-                orElse: () => null,
-              )
-            : null;
-
-        return SafeArea(
-          child: Column(
-            children: [
-              // 1. Top Resource Bar
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 12,
-                  horizontal: 16,
-                ),
-                margin: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.panel,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.primary),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _buildResourceItem(
-                      Icons.monetization_on,
-                      AppColors.secondary,
-                      resources.gold,
-                    ),
-                    _buildResourceItem(
-                      Icons.forest,
-                      Colors.brown,
-                      resources.wood,
-                    ),
-                    _buildResourceItem(
-                      Icons.landscape,
-                      MGColors.common,
-                      resources.stone,
-                    ),
-                  ],
-                ),
-              ),
-
-              const Spacer(),
-
-              // 2. Active Buttons (Floating) - Only if NOT selecting? Or always?
-              // Hide Build button if selecting to avoid clutter? No, keep it.
-              Padding(
-                padding: const EdgeInsets.only(bottom: 20, right: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    if (selectedBuilding ==
-                        null) // Hide controls when inspecting?
-                      FloatingActionButton.extended(
-                        heroTag: 'build_btn',
-                        onPressed: () {
-                          try {
-                            GetIt.I<AudioManager>().playSfx('sfx_click.wav');
-                          } catch (_) {}
-                          // Open Construction Overlay
-                          // Ideally we pass context or callback.
-                          // For now, hack: we know the 'construction' overlay is registered.
-                          // But we can't trigger it easily without GameRef.
-                          // Wait, in previous step I said I'd fix structure.
-                          // KingdomHud has field: final KingdomGame game;
-                          // So we CAN use game.overlays!
-                          // Step 1188 shows: class KingdomHud extends StatelessWidget { const KingdomHud({super.key}); ...
-                          // It lacks the `final KingdomGame game` field in the definition!
-                          // But line 74: KingdomHud(game: game) implies it is expected or failed.
-                          // Ah, line 74 in `build` passes `game`, but class definition (line 95) does NOT have it.
-                          // I must fix that too.
-
-                          // BUT, I can't simple fix constructor in THIS replace block easily if I don't target it.
-                          // I am targeting `build`.
-
-                          // I will assume `game` is available if I fix the class def in a separate edit or larger edit.
-                          // I'll make this edit assume `this.game` exists and I'll do a second edit to add the field.
-                          game.overlays.add('construction');
-                          game.overlays.remove('HUD');
-                        },
-                        icon: const Icon(Icons.construction),
-                        label: const Text("Build"),
-                        backgroundColor: AppColors.primary,
-                      ),
-                    const SizedBox(width: 16),
-                    FloatingActionButton.extended(
-                      heroTag: 'tax_btn',
-                      onPressed: () {
-                        try {
-                          GetIt.I<AudioManager>().playSfx('sfx_coin.wav');
-                        } catch (_) {}
-                        resources.click();
-                      },
-                      icon: const Icon(Icons.touch_app),
-                      label: const Text("Collect Tax"),
-                      backgroundColor: AppColors.secondary,
-                    ),
-                  ],
-                ),
-              ),
-
-              // 3. Bottom Panel (Selection or List)
-              Container(
-                height: 280, // Slightly taller
-                decoration: const BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 10,
-                      offset: Offset(0, -5),
-                    ),
-                  ],
-                ),
-                child: selectedBuilding != null
-                    ? _buildInspector(context, resources, selectedBuilding)
-                    : _buildBuildingList(context, resources),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
+final KingdomGame game;
+final VoidCallback? onGuildWar;
+final VoidCallback? onTournament;
+final VoidCallback? onSeasonalEvent;
+const KingdomHud({
+super.key,
+required this.game,
+this.onGuildWar,
+this.onTournament,
+this.onSeasonalEvent,
+});
+@override
+// ... Inside KingdomHud
+Widget build(BuildContext context) {
+// Consume resource manager to rebuild HUD on change
+	builder: (context, resources, child) {
+//       builder: (context, resources, child) {
+//         // Selection Logic
+//         final selectedId = resources.selectedBuildingId;
+//         final selectedBuilding = selectedId != null
+//             ? resources.buildings.cast<BuildingInstance?>().firstWhere(
+//                 (b) => b?.id == selectedId,
+//                 orElse: () => null,
+//               )
+: null;
+return SafeArea(
+child: Column(
+children: [
+// 1. Top Resource Bar
+Container(
+padding: const EdgeInsets.symmetric(
+vertical: 12,
+horizontal: 16,
+),
+margin: const EdgeInsets.all(8),
+decoration: BoxDecoration(
+color: AppColors.panel,
+borderRadius: BorderRadius.circular(16),
+border: Border.all(color: AppColors.primary),
+),
+child: Row(
+mainAxisAlignment: MainAxisAlignment.spaceAround,
+children: [
+_buildResourceItem(
+Icons.monetization_on,
+AppColors.secondary,
+resources.gold,
+),
+_buildResourceItem(
+Icons.forest,
+Colors.brown,
+resources.wood,
+),
+_buildResourceItem(
+Icons.landscape,
+MGColors.common,
+resources.stone,
+),
+],
+),
+),
+const Spacer(),
+// 2. Active Buttons (Floating) - Only if NOT selecting? Or always?
+// Hide Build button if selecting to avoid clutter? No, keep it.
+Padding(
+padding: const EdgeInsets.only(bottom: 20, right: 16),
+child: Row(
+mainAxisAlignment: MainAxisAlignment.end,
+children: [
+if (selectedBuilding ==
+null) // Hide controls when inspecting?
+FloatingActionButton.extended(
+heroTag: 'build_btn',
+onPressed: () {
+try {
+GetIt.I<AudioManager>().playSfx('sfx_click.wav');
+} catch (_) {}
+// Open Construction Overlay
+// Ideally we pass context or callback.
+// For now, hack: we know the 'construction' overlay is registered.
+// But we can't trigger it easily without GameRef.
+// Wait, in previous step I said I'd fix structure.
+// KingdomHud has field: final KingdomGame game;
+// So we CAN use game.overlays!
+// Step 1188 shows: class KingdomHud extends StatelessWidget { const KingdomHud({super.key}); ...
+// It lacks the `final KingdomGame game` field in the definition!
+// But line 74: KingdomHud(game: game) implies it is expected or failed.
+// Ah, line 74 in `build` passes `game`, but class definition (line 95) does NOT have it.
+// I must fix that too.
+// BUT, I can't simple fix constructor in THIS replace block easily if I don't target it.
+// I am targeting `build`.
+// I will assume `game` is available if I fix the class def in a separate edit or larger edit.
+// I'll make this edit assume `this.game` exists and I'll do a second edit to add the field.
+game.overlays.add('construction');
+game.overlays.remove('HUD');
+},
+icon: const Icon(Icons.construction),
+label: Text('ui_general_welcome_to_kingdom_rebuild'.tr),
+backgroundColor: AppColors.primary,
+),
+const SizedBox(width: 16),
+FloatingActionButton.extended(
+heroTag: 'tax_btn',
+onPressed: () {
+try {
+GetIt.I<AudioManager>().playSfx('sfx_coin.wav');
+} catch (_) {}
+resources.click();
+},
+icon: const Icon(Icons.touch_app),
+label: Text('ui_general_collect_tax'.tr),
+backgroundColor: AppColors.secondary,
+),
+],
+),
+),
+// 3. Bottom Panel (Selection or List)
+Container(
+height: 280, // Slightly taller
+decoration: const BoxDecoration(
+color: AppColors.surface,
+borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+boxShadow: [
+BoxShadow(
+color: Colors.black26,
+blurRadius: 10,
+offset: Offset(0, -5),
+),
+],
+),
+child: selectedBuilding != null
+? _buildInspector(context, resources, selectedBuilding)
+: _buildBuildingList(context, resources),
+),
+],
+),
+);
+},
+//     );
+//   }
+// 
   Widget _buildInspector(
     BuildContext context,
     ResourceManager resources,
@@ -564,7 +601,7 @@ class KingdomHud extends StatelessWidget {
                             ? () => resources.removeWorker(b.id)
                             : null,
                       ),
-                      Text("Workers: ${b.workers} / ${b.maxWorkers}"),
+                      Text('ui_general_workers_bworkers_bmaxworkers'.tr),
                       IconButton(
                         icon: const Icon(Icons.add),
                         onPressed:
@@ -619,7 +656,7 @@ class KingdomHud extends StatelessWidget {
                   color: _getBuildingColor(b.type),
                 ),
                 title: Text(b.name),
-                subtitle: Text("Lv.${b.level}"),
+                subtitle: Text('progress_lvblevel'.tr),
                 onTap: () {
                   resources.selectBuilding(b.id);
                 },
@@ -685,30 +722,30 @@ class KingdomHud extends StatelessWidget {
 
 void _registerDailyQuests() {
   final dailyQuest = GetIt.I<DailyQuestManager>();
-  
+
   dailyQuest.registerQuest(DailyQuest(
-    id: 'collect_gold',
-    title: '골드 모으기',
-    description: '골드 1000 획득',
-    targetValue: 1000,
+    id: 'build_cards',
+    title: '카드 덱 구성',
+    description: '카드 20장 수집',
+    targetValue: 20,
     goldReward: 500,
     xpReward: 10,
   ));
-  
+
   dailyQuest.registerQuest(DailyQuest(
-    id: 'play_games',
-    title: '게임 플레이',
-    description: '게임 5판 플레이',
-    targetValue: 5,
+    id: 'win_battles',
+    title: '전투 승리',
+    description: '배틀 3회 승리',
+    targetValue: 3,
     goldReward: 300,
     xpReward: 5,
   ));
-  
+
   dailyQuest.registerQuest(DailyQuest(
-    id: 'level_up',
-    title: '레벨업',
-    description: '레벨 1 상승',
-    targetValue: 1,
+    id: 'upgrade_deck',
+    title: '덱 업그레이드',
+    description: '카드 5개 강화',
+    targetValue: 5,
     goldReward: 200,
     xpReward: 3,
   ));
@@ -744,14 +781,14 @@ void _setupGacha() {
       )),
 
       // SSR (2.7%)
-      const GachaItem(
+      GachaItem(
         id: 'ssr_item_1',
         nameKr: '울트라레어 아이템 1',
         rarity: GachaRarity.ultraRare,
       ),
 
       // UR (0.3%)
-      const GachaItem(
+      GachaItem(
         id: 'ur_item_1',
         nameKr: '레전더리 아이템 1',
         rarity: GachaRarity.legendary,
