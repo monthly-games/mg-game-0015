@@ -1,4 +1,3 @@
-import '../../../../core/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:mg_common_game/core/localization/localization.dart';
 import 'package:mg_common_game/core/ui/theme/app_colors.dart';
@@ -26,7 +25,10 @@ class TutorialOverlay extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("Welcome to Kingdom Rebuild!", style: AppTextStyles.header1),
+            const Text(
+              'Welcome to Kingdom Rebuild!',
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 16),
             const Text(
               "Your goal is to rebuild the kingdom.\n\n"
@@ -35,7 +37,7 @@ class TutorialOverlay extends StatelessWidget {
               "3. Upgrade buildings to increase efficiency.\n"
               "4. Manage workers to boost output.\n\n"
               "Good luck, my liege!",
-              style: AppTextStyles.body,
+              style: TextStyle(fontSize: 16),
               textAlign: TextAlign.left,
             ),
             const SizedBox(height: 24),

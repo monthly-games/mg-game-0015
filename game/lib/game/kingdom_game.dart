@@ -1,4 +1,3 @@
-import '../../core/localization/app_localizations.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';

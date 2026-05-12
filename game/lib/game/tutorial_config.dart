@@ -1,13 +1,11 @@
-import '../../core/localization/app_localizations.dart';
 import 'package:mg_common_game/systems/tutorial/tutorial.dart';
-import 'package:mg_common_game/systems/tutorial/tutorial_data.dart';
 
 /// Tutorial configuration for MG-0015: Kingdom Rebuild (Strategy).
 ///
 /// Placeholder tutorial steps for v1.2.0 pilot integration.
 /// In production, replace descriptions with localized strings
 /// and add targetKey for highlight positioning.
-final kOnboardingTutorial = TutorialConfig(
+const kOnboardingTutorial = TutorialConfig(
   id: 'onboarding',
   name: 'Kingdom Rebuild Tutorial',
   skippable: true,

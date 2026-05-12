@@ -1,4 +1,3 @@
-import '../../../../core/localization/app_localizations.dart';
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/foundation.dart';

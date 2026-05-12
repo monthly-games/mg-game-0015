@@ -1,4 +1,3 @@
-import '../core/localization/app_localizations.dart';
 // ignore_for_file: depend_on_referenced_packages
 // ============================================================
 // Achievement Screen -- MG-0015 Kingdom Rebuild Project

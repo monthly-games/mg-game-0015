@@ -1,4 +1,3 @@
-import '../../core/localization/app_localizations.dart';
 import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';

@@ -1,4 +1,3 @@
-import '../../../../core/localization/app_localizations.dart';
 import 'package:uuid/uuid.dart';
 import 'building_definition.dart';
 

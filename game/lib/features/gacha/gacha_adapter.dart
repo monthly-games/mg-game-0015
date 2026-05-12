@@ -1,4 +1,3 @@
-import '../../../../core/localization/app_localizations.dart';
 /// 가챠 시스템 어댑터 - MG-0015 Kingdom Builder
 library;
 
@@ -54,30 +53,30 @@ class BuildingGachaAdapter extends ChangeNotifier {
   List<GachaItem> _generateItems() {
     return [
       // UR (0.6%)
-      GachaItem(id: 'ur_kingdom_001', nameKr: '전설의 Building', rarity: GachaRarity.ultraRare),
-      GachaItem(id: 'ur_kingdom_002', nameKr: '신화의 Building', rarity: GachaRarity.ultraRare),
+      const GachaItem(id: 'ur_kingdom_001', nameKr: '전설의 Building', rarity: GachaRarity.ultraRare),
+      const GachaItem(id: 'ur_kingdom_002', nameKr: '신화의 Building', rarity: GachaRarity.ultraRare),
       // SSR (2.4%)
-      GachaItem(id: 'ssr_kingdom_001', nameKr: '영웅의 Building', rarity: GachaRarity.superRare),
-      GachaItem(id: 'ssr_kingdom_002', nameKr: '고대의 Building', rarity: GachaRarity.superRare),
-      GachaItem(id: 'ssr_kingdom_003', nameKr: '황금의 Building', rarity: GachaRarity.superRare),
+      const GachaItem(id: 'ssr_kingdom_001', nameKr: '영웅의 Building', rarity: GachaRarity.superRare),
+      const GachaItem(id: 'ssr_kingdom_002', nameKr: '고대의 Building', rarity: GachaRarity.superRare),
+      const GachaItem(id: 'ssr_kingdom_003', nameKr: '황금의 Building', rarity: GachaRarity.superRare),
       // SR (12%)
-      GachaItem(id: 'sr_kingdom_001', nameKr: '희귀한 Building A', rarity: GachaRarity.superRare),
-      GachaItem(id: 'sr_kingdom_002', nameKr: '희귀한 Building B', rarity: GachaRarity.superRare),
-      GachaItem(id: 'sr_kingdom_003', nameKr: '희귀한 Building C', rarity: GachaRarity.superRare),
-      GachaItem(id: 'sr_kingdom_004', nameKr: '희귀한 Building D', rarity: GachaRarity.superRare),
+      const GachaItem(id: 'sr_kingdom_001', nameKr: '희귀한 Building A', rarity: GachaRarity.superRare),
+      const GachaItem(id: 'sr_kingdom_002', nameKr: '희귀한 Building B', rarity: GachaRarity.superRare),
+      const GachaItem(id: 'sr_kingdom_003', nameKr: '희귀한 Building C', rarity: GachaRarity.superRare),
+      const GachaItem(id: 'sr_kingdom_004', nameKr: '희귀한 Building D', rarity: GachaRarity.superRare),
       // R (35%)
-      GachaItem(id: 'r_kingdom_001', nameKr: '우수한 Building A', rarity: GachaRarity.rare),
-      GachaItem(id: 'r_kingdom_002', nameKr: '우수한 Building B', rarity: GachaRarity.rare),
-      GachaItem(id: 'r_kingdom_003', nameKr: '우수한 Building C', rarity: GachaRarity.rare),
-      GachaItem(id: 'r_kingdom_004', nameKr: '우수한 Building D', rarity: GachaRarity.rare),
-      GachaItem(id: 'r_kingdom_005', nameKr: '우수한 Building E', rarity: GachaRarity.rare),
+      const GachaItem(id: 'r_kingdom_001', nameKr: '우수한 Building A', rarity: GachaRarity.rare),
+      const GachaItem(id: 'r_kingdom_002', nameKr: '우수한 Building B', rarity: GachaRarity.rare),
+      const GachaItem(id: 'r_kingdom_003', nameKr: '우수한 Building C', rarity: GachaRarity.rare),
+      const GachaItem(id: 'r_kingdom_004', nameKr: '우수한 Building D', rarity: GachaRarity.rare),
+      const GachaItem(id: 'r_kingdom_005', nameKr: '우수한 Building E', rarity: GachaRarity.rare),
       // N (50%)
-      GachaItem(id: 'n_kingdom_001', nameKr: '일반 Building A', rarity: GachaRarity.normal),
-      GachaItem(id: 'n_kingdom_002', nameKr: '일반 Building B', rarity: GachaRarity.normal),
-      GachaItem(id: 'n_kingdom_003', nameKr: '일반 Building C', rarity: GachaRarity.normal),
-      GachaItem(id: 'n_kingdom_004', nameKr: '일반 Building D', rarity: GachaRarity.normal),
-      GachaItem(id: 'n_kingdom_005', nameKr: '일반 Building E', rarity: GachaRarity.normal),
-      GachaItem(id: 'n_kingdom_006', nameKr: '일반 Building F', rarity: GachaRarity.normal),
+      const GachaItem(id: 'n_kingdom_001', nameKr: '일반 Building A', rarity: GachaRarity.normal),
+      const GachaItem(id: 'n_kingdom_002', nameKr: '일반 Building B', rarity: GachaRarity.normal),
+      const GachaItem(id: 'n_kingdom_003', nameKr: '일반 Building C', rarity: GachaRarity.normal),
+      const GachaItem(id: 'n_kingdom_004', nameKr: '일반 Building D', rarity: GachaRarity.normal),
+      const GachaItem(id: 'n_kingdom_005', nameKr: '일반 Building E', rarity: GachaRarity.normal),
+      const GachaItem(id: 'n_kingdom_006', nameKr: '일반 Building F', rarity: GachaRarity.normal),
     ];
   }
 

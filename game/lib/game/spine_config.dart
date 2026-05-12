@@ -1,4 +1,3 @@
-import '../../core/localization/app_localizations.dart';
 // import 'package:mg_common_game/core/assets/asset_types.dart'; // Temporarily disabled - module doesn't exist yet
 
 /// Spine 통합 플래그. `--dart-define=SPINE_ENABLED=true`로 활성화.

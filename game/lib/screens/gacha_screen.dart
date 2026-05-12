@@ -1,4 +1,3 @@
-import '../core/localization/app_localizations.dart';
 // ============================================================
 // Gacha Screen -- MG-0015 Kingdom Rebuild
 // Genre: Various · Retention System UI
@@ -649,7 +648,6 @@ class _GachaScreenState extends State<GachaScreen>
       GachaRarity.superRare => MGColors.epic,
       GachaRarity.ultraRare => MGColors.legendary,
       GachaRarity.legendary => MGColors.mythic,
-      GachaRarity.superRare => MGColors.mythic,
     };
   }
 

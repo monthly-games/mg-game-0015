@@ -1,11 +1,10 @@
-import '../../core/localization/app_localizations.dart';
 // import 'package:mg_common_game/systems/balancing/balancing.dart'; // Temporarily disabled - module doesn't exist yet
 
-/// Default balancing configuration for MG-0015: Kingdom Rebuild.
-///
-/// Placeholder values for v1.2.0 pilot integration.
-/// In production, override via RemoteConfig using
-/// BalancingManager.loadFromRemote.
+// Default balancing configuration for MG-0015: Kingdom Rebuild.
+//
+// Placeholder values for v1.2.0 pilot integration.
+// In production, override via RemoteConfig using
+// BalancingManager.loadFromRemote.
 // const kDefaultBalancingConfig = BalancingConfig(
 //   gameId: 'mg-0015',
 //   version: 1,

@@ -1,4 +1,3 @@
-import '../../../../core/localization/app_localizations.dart';
 // Circular dependency for type enum if needed, or just keep enum here?
 // Better to move Enum to a shared file or keep in definition.
 

@@ -1,4 +1,3 @@
-import '../../../../core/localization/app_localizations.dart';
 /// 배틀패스 시스템 어댑터 - MG-0015 Kingdom Builder
 library;
 

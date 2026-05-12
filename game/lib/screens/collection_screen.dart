@@ -1,4 +1,3 @@
-import '../core/localization/app_localizations.dart';
 // ignore_for_file: depend_on_referenced_packages, unused_local_variable
 // ============================================================
 // Collection Screen -- MG-0010 Dungeon Shop Simulator
