@@ -18,9 +18,7 @@ class AppLocalizations {
   String get progress_tier_level_names => 'Tier';
 }
 
-extension AppLocalizationsExtension on BuildContext {
-  AppLocalizations get l10n => AppLocalizations.of(this);
-}
+// [STABILIZED] Local L10n Extension Removed
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();

@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../buildings/building_definition.dart';
 import '../buildings/building_instance.dart';
 import '../grid/grid_system.dart';
+import '../achievements/achievement_manager.dart';
 
 enum ResourceType { gold, wood, stone }
 
@@ -35,6 +36,9 @@ class ResourceManager extends ChangeNotifier {
   int _assignedWorkers = 0;
 
   double _autoSaveTimer = 0;
+
+  // Achievement System
+  final AchievementManager achievementManager = AchievementManager();
 
   int get totalWorkers {
     int bonus = 0;
@@ -120,10 +124,12 @@ class ResourceManager extends ChangeNotifier {
 
   Future<void> init() async {
     await load();
+    await achievementManager.load();
     if (buildings.isEmpty) {
       // Initial State
       _spawnInitialBuildings();
     }
+    _updateAchievements();
   }
 
   void _spawnInitialBuildings() {
@@ -145,6 +151,7 @@ class ResourceManager extends ChangeNotifier {
       if (b.isUnderConstruction) {
         if (b.constructionEndTime!.isBefore(DateTime.now())) {
           b.finishConstruction();
+          achievementManager.updateBuildingCount(buildings.length);
           notifyListeners();
         }
       }
@@ -168,14 +175,28 @@ class ResourceManager extends ChangeNotifier {
       }
     }
 
-    // Auto Save
+    // Update achievements periodically
     _autoSaveTimer += dt;
     if (_autoSaveTimer >= 10.0) {
       _autoSaveTimer = 0;
       save();
+      _updateAchievements();
     }
 
     notifyListeners();
+  }
+
+  void _updateAchievements() {
+    achievementManager.updateBuildingCount(buildings.length);
+    achievementManager.updateGoldAmount(gold);
+    achievementManager.updateResourceAmount('wood', wood);
+    achievementManager.updateResourceAmount('stone', stone);
+    achievementManager.updateCombinedResources(wood, stone);
+    achievementManager.updatePopulation(totalWorkers);
+
+    // Count high-level buildings
+    int highLevelCount = buildings.where((b) => b.level >= 3).length;
+    achievementManager.updateHighLevelBuildings(highLevelCount);
   }
 
   bool canAfford(double cost) {
@@ -235,6 +256,8 @@ class ResourceManager extends ChangeNotifier {
       // Linear scaling: 5s, 10s, 15s...
       int seconds = 5 * (b.level + 1);
       b.startConstruction(Duration(seconds: seconds));
+
+      achievementManager.updateBuildingLevel(instanceId, b.level + 1);
 
       save();
       notifyListeners();
